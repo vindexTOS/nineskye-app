@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .fade-in-up {
+    animation: fadeInUp 1s ease-out;
+  }
+  
+  @keyframes slideInFromLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .slide-in-left {
+    animation: slideInFromLeft 1s ease-out;
+  }
+
+ /* Adjust the width of the modal */
+.custom-swal-container {
+  width: 100vw; /* Adjust the width as needed */
+  z-index: 20000;
+}
+
+/* Customize the text size */
+.custom-swal-title {
+  font-size: 1rem; /* Adjust the title font size as needed */
+}
+
+.custom-swal-content {
+  font-size: 12px; /* Adjust the content font size as needed */
+}
+
+.custom-menu .ant-menu {
+  background-color: #0289cc !important; /* Ensure background color applies */
+}
+
+.custom-menu .ant-menu-item {
+  color: #ffffff; /* Optional: Text color for menu items */
+}
+
+.custom-menu .ant-menu-item-selected {
+  background-color: #1a8cff !important; /* Optional: Background color for selected item */
+  color: #ffffff; /* Optional: Text color for selected item */
+}
+
+
+.header{
+
+}
+.entery{
+
+}
+
+.main{
+ 
+   display: flex;
+   justify-content: space-between;
+   
+   flex-direction: column;
+   background-color: 'red';
+}
+.calculator {
+
+}
+
+@media screen and (max-height: 899px) and (min-width: 1254px) {
+  .header {
+ 
+   position: absolute;
+   top:10rem
+  }
+  .entery{
+    height: 2000px;
+   
+  }
+  .main{
+    height: 100%;
+    justify-content: space-between;
+  }
+  .calculator {
+    position: absolute;
+    top:20rem
+  }
+ 
+}
