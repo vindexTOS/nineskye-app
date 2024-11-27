@@ -15,35 +15,34 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 @Module({
-  controllers:[AppController],
-  providers:[AppService],
+  controllers: [AppController],
+  providers: [AppService],
   imports: [
     AuthModule,
     AdminModule,
     UserModule,
     ConfigModule.forRoot({
-      isGlobal: true, 
-      envFilePath: '.env', 
+      isGlobal: true,
+      envFilePath: '.env',
     }),
 
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule], 
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get<string>('POSTGRES_HOST'), 
-        port: configService.get<number>('POSTGRES_PORT'), 
-        username: configService.get<string>('POSTGRES_USER'),
-        password: configService.get<string>('POSTGRES_PASSWORD'),
-        database: configService.get<string>('POSTGRES_DB'),
-        entities: [User, Parcel,  Declaration, Transaction, UserDetails, Flight, Price], 
-        synchronize: true, 
+        type: 'mysql', // This stays 'mysql'
+        host: configService.get<string>('MYSQL_HOST'), // Correct environment variable
+        port: configService.get<number>('MYSQL_PORT'), // Correct environment variable
+        username: configService.get<string>('MYSQL_USER'), // Correct environment variable
+        password: configService.get<string>('MYSQL_PASSWORD'), // Correct environment variable
+        database: configService.get<string>('MYSQL_DB'), // Correct environment variable
+        entities: [User, Parcel, Declaration, Transaction, UserDetails, Flight, Price],
+        synchronize: true,
         migrationsRun: true,
         logging: false,
       }),
     }),
     TypeOrmModule.forFeature([Price]),
-
   ],
 })
 export class AppModule {}
