@@ -2163,7 +2163,7 @@ const common_1 = __webpack_require__(3);
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
-        origin: 'http://164.90.214.153',
+        origin: 'http://209.38.224.134',
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
@@ -2174,7 +2174,7 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
-    await app.listen(3000);
+    await app.listen(process.env.PORT || 3001);
 }
 bootstrap();
 
