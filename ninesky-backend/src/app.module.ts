@@ -30,7 +30,7 @@ import { AppService } from './app.service';
       imports: [ConfigModule], 
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
+        type: 'mysql',
         host: configService.get<string>('POSTGRES_HOST'), 
         port: configService.get<number>('POSTGRES_PORT'), 
         username: configService.get<string>('POSTGRES_USER'),
