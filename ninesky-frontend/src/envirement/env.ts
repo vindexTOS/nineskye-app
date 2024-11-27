@@ -1,5 +1,5 @@
 export const envirement = {
-    baseUrl: "http://52.59.237.129:3000/api/",
+    baseUrl: "http://164.90.214.153:3000/api/",
  
    
   };
