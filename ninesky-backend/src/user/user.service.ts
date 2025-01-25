@@ -184,7 +184,7 @@ public async GetRedirectUrlAsync(paymentReq:any):Promise<any>
                "order_id": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
                "currency": paymentReq.currency,
                "merchant_id": 1549901,
-               "order_desc": `payment from ${paymentReq.customerFirstName +" "+paymentReq.customerLastName +" "+ unixSecound}`, 
+               "order_desc": `${paymentReq.currency}|1549901|userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`, 
                "amount": paymentReq.amount,
                 "signature": signature
            }
