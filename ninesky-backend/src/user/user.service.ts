@@ -191,8 +191,8 @@ public async GetRedirectUrlAsync(paymentReq:any):Promise<any>
        };
    }
    private async buildSignature(paymentReq: any, unixSecond: number): Promise<string> {
-    // Concatenate the parameters in the correct order
-    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
+    // Concatenate the parameters in the correct order // 
+    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
 }
 
    public async hashData(data: string): Promise<string> {

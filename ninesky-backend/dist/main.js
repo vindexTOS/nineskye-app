@@ -264,7 +264,7 @@ let UserService = class UserService {
         };
     }
     async buildSignature(paymentReq, unixSecond) {
-        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
+        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
     }
     async hashData(data) {
         console.log(crypto.createHash('sha1').update(data).digest('hex'));
