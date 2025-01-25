@@ -257,14 +257,14 @@ let UserService = class UserService {
                 "order_id": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
                 "currency": paymentReq.currency,
                 "merchant_id": 1549901,
-                "order_desc": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
+                "order_desc": `robikaID`,
                 "amount": paymentReq.amount,
                 "signature": signature
             }
         };
     }
     async buildSignature(paymentReq, unixSecond) {
-        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
+        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|robikaID|userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
     }
     async hashData(data) {
         console.log(crypto.createHash('sha1').update(data).digest('hex'));
