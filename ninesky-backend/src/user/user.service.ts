@@ -10,7 +10,12 @@ import { CreateDeclarationDto } from 'libs/dtos/declarationDtos.ts/createDeclara
 import { Transaction } from 'libs/entities/transactions.entity';
 import { TransactionType } from 'libs/enums/transactions.enum';
 import { PaymentType } from 'libs/enums/payment.status.enum';
+import { HttpService } from '@nestjs/axios';
 
+import * as moment from "moment"
+import * as crypto from "crypto";
+import { AxiosResponse } from 'axios';
+import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class UserService {
   constructor(
@@ -22,6 +27,7 @@ export class UserService {
     private parcelRepository: Repository<Parcel>,
     @InjectRepository(Declaration)
     private declarationRepository: Repository<Declaration>,
+    private readonly httpService: HttpService
   ) {}
 
   async getProfile(id : string ){
@@ -77,6 +83,10 @@ export class UserService {
   
     }
     }
+// ***********************************************************************************
+//  transactions 
+
+
 
     async depositeBalance(userId : string, data : {amount : number}){
      try {
@@ -133,5 +143,57 @@ export class UserService {
     
     }
 
+//  ???????????????????????????????????????????????????????????????
 
+
+
+
+
+public async GetRedirectUrlAsync(paymentReq:any):Promise<any>
+{
+    const body =await this.createPaymentRequestBody(paymentReq);
+    try 
+    {
+        const response: AxiosResponse = await firstValueFrom(
+            this.httpService.post('https://pay.flitt.com/api/checkout/url', body, {
+            headers: { 'Content-Type': 'application/json' } 
+            }));
+        return response.data;
+    } 
+    catch (error) 
+    {
+        console.error('Error making payment request:', error.response?.data || error.message);
+        throw new Error('Payment request failed');
+    }
+}
+
+
+    private async createPaymentRequestBody(paymentReq: any): Promise<any> 
+    {
+       const unixSecound = moment().unix();
+       const signatureData = await this.buildSignature(paymentReq, unixSecound);
+       const signature = (await this.hashData(signatureData)).toLowerCase();
+       console.log(signatureData)
+       console.log(signature)
+       return {
+           "request": {
+               "server_callback_url": "http://localhost:3001/api/user/deposite",
+               "order_id": `payment from ${paymentReq.customerFirstName +" "+paymentReq.customerLastName +" "+ unixSecound}`,
+               "currency": paymentReq.currency,
+               "merchant_id": 1549901,
+               "order_desc": `payment from ${paymentReq.customerFirstName +" "+paymentReq.customerLastName +" "+ unixSecound}`, 
+               "amount": paymentReq.amount,
+               "signature": signature
+           }
+       };
+   }
+   private async buildSignature(paymentReq: any, unixSecond: number): Promise<string> {
+    // Concatenate the parameters in the correct order
+    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|http://localhost:3001/api/user/deposite`;
+}
+
+   public async hashData(data: string): Promise<string> {
+    console.log(crypto.createHash('sha1').update(data).digest('hex'))
+  return crypto.createHash('sha1').update(data).digest('hex');
+}
 }

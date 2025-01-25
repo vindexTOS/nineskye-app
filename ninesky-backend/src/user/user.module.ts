@@ -8,13 +8,14 @@ import { Parcel } from 'libs/entities/parcel.entity';
 import { Declaration } from 'libs/entities/declaration.entity';
 import { Transaction } from 'libs/entities/transactions.entity';
 import { JwtStrategy } from 'libs/jwt/jwt.strategy';
+import { HttpModule  } from '@nestjs/axios';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Parcel, Declaration, Transaction])],
+  imports: [TypeOrmModule.forFeature([User, Parcel, Declaration, Transaction]), HttpModule],
   controllers: [UserController],
-  providers: [UserService, JwtAuthGuard , JwtStrategy],
-  exports: [UserService]
+  providers: [UserService, JwtAuthGuard , JwtStrategy , ],
+  exports: [UserService ,]
 })
 export class UserModule { }
 

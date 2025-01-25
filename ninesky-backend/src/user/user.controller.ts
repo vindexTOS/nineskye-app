@@ -7,7 +7,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CreateDeclarationDto } from 'libs/dtos/declarationDtos.ts/createDeclarationDto';
 
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
@@ -30,6 +30,11 @@ export class UserController {
   async declarateParcel(@Body() body: CreateDeclarationDto, @UploadedFile() file: Express.Multer.File,) {
     return await this.userService.createDeclaration({...body, invoice_Pdf : file.buffer})
   }
+
+ @Get("callback-topay")
+ async callBackToPay(@Body() paymentReq:any){
+   return this.userService.GetRedirectUrlAsync(paymentReq)
+ }
 
     @Post('deposite')
   async updateBalance(@GetUser() user: userPaylaod, @Body() body: {amount: number}) {
