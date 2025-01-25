@@ -37,9 +37,12 @@ export class UserController {
  }
 
     @Post('deposite')
-  async updateBalance(@GetUser() user: userPaylaod, @Body() body: {amount: number}) {
-     return this.userService.depositeBalance(user.sub, body)
+  async updateBalance(@Body() body:any) {
+     return this.userService.depositeBalance(body)
   }
+  // async updateBalance(@GetUser() user: userPaylaod, @Body() body: {amount: number}) {
+  //    return this.userService.depositeBalance(user.sub, body)
+  // }
 
   @Post('pay-parcels')
   async payParcels(@GetUser() user: userPaylaod, @Body() body: {tracking_id:string}[]) {

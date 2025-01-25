@@ -88,21 +88,23 @@ export class UserService {
 
 
 
-    async depositeBalance(userId : string, data : {amount : number}){
-     try {
-      const user = await this.userRepository.findOne({where:{ id : userId}})
-      const newTransaction =  this.TransactionRepository.create({
-        user,
-        date: new Date,
-        amount:data.amount,
-        transactionType : TransactionType.DEPOSIT
+    async depositeBalance(body){
 
-      })
+      console.log(body)
+    //  try {
+    //   const user = await this.userRepository.findOne({where:{ id : userId}})
+    //   const newTransaction =  this.TransactionRepository.create({
+    //     user,
+    //     date: new Date,
+    //     amount:data.amount,
+    //     transactionType : TransactionType.DEPOSIT
 
-      return this.TransactionRepository.save(newTransaction)
-     } catch (error) {
+    //   })
+
+    //   return this.TransactionRepository.save(newTransaction)
+    //  } catch (error) {
       
-     }
+    //  }
     }
 
     async payParcels(userId: string, parcels: { tracking_id: string }[]) {
@@ -177,7 +179,7 @@ public async GetRedirectUrlAsync(paymentReq:any):Promise<any>
        console.log(signature)
        return {
            "request": {
-               "server_callback_url": "http://localhost:3001/api/user/deposite",
+               "server_callback_url": "https://ninesky.ge/backend/api/user/deposite",
                "order_id": `payment from ${paymentReq.customerFirstName +" "+paymentReq.customerLastName +" "+ unixSecound}`,
                "currency": paymentReq.currency,
                "merchant_id": 1549901,
@@ -189,7 +191,7 @@ public async GetRedirectUrlAsync(paymentReq:any):Promise<any>
    }
    private async buildSignature(paymentReq: any, unixSecond: number): Promise<string> {
     // Concatenate the parameters in the correct order
-    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|http://localhost:3001/api/user/deposite`;
+    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
 }
 
    public async hashData(data: string): Promise<string> {
