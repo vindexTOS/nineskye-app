@@ -16,6 +16,7 @@ import * as moment from "moment"
 import * as crypto from "crypto";
 import { AxiosResponse } from 'axios';
 import { firstValueFrom } from 'rxjs';
+import { PaymentRequestDto } from 'libs/dtos/transactions/payment-request.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -170,7 +171,7 @@ public async GetRedirectUrlAsync(paymentReq:any):Promise<any>
 }
 
 
-    private async createPaymentRequestBody(paymentReq: any): Promise<any> 
+    private async createPaymentRequestBody(paymentReq: PaymentRequestDto): Promise<any> 
     {
        const unixSecound = moment().unix();
        const signatureData = await this.buildSignature(paymentReq, unixSecound);
@@ -185,6 +186,8 @@ public async GetRedirectUrlAsync(paymentReq:any):Promise<any>
                "merchant_id": 1549901,
                "order_desc": `payment from ${paymentReq.customerFirstName +" "+paymentReq.customerLastName +" "+ unixSecound}`, 
                "amount": paymentReq.amount,
+               "sender_account":"robikaID",
+               "sender_cell_phone":"599326017",
                "signature": signature
            }
        };
