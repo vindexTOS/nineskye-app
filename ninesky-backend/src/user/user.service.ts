@@ -181,20 +181,18 @@ public async GetRedirectUrlAsync(paymentReq:any):Promise<any>
        return {
            "request": {
                "server_callback_url": "https://ninesky.ge/backend/api/user/deposite",
-               "order_id": `payment from ${paymentReq.customerFirstName +" "+paymentReq.customerLastName +" "+ unixSecound}`,
+               "order_id": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
                "currency": paymentReq.currency,
                "merchant_id": 1549901,
                "order_desc": `payment from ${paymentReq.customerFirstName +" "+paymentReq.customerLastName +" "+ unixSecound}`, 
                "amount": paymentReq.amount,
-               "sender_account":"robikaID",
-               "sender_cell_phone":"599326017",
-               "signature": signature
+                "signature": signature
            }
        };
    }
    private async buildSignature(paymentReq: any, unixSecond: number): Promise<string> {
     // Concatenate the parameters in the correct order
-    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
+    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|payment from ${paymentReq.customerFirstName} ${paymentReq.customerLastName} ${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
 }
 
    public async hashData(data: string): Promise<string> {
