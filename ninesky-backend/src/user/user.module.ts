@@ -9,10 +9,11 @@ import { Declaration } from 'libs/entities/declaration.entity';
 import { Transaction } from 'libs/entities/transactions.entity';
 import { JwtStrategy } from 'libs/jwt/jwt.strategy';
 import { HttpModule  } from '@nestjs/axios';
+import { PaymentHistory } from 'libs/entities/payment.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Parcel, Declaration, Transaction]), HttpModule],
+  imports: [TypeOrmModule.forFeature([User, Parcel, Declaration, Transaction, PaymentHistory]), HttpModule],
   controllers: [UserController],
   providers: [UserService, JwtAuthGuard , JwtStrategy , ],
   exports: [UserService ,]

@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 import { TransactionType } from 'libs/enums/transactions.enum';
 
 
@@ -7,9 +7,9 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   amount: number;
 
-  @IsEnum(TransactionType)
+  @IsString()
   @IsNotEmpty()
-  transactionType: TransactionType;
+  transactionType: string;
 
   @IsUUID()
   @IsNotEmpty()
