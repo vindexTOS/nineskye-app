@@ -2383,11 +2383,11 @@ let TransactionService = class TransactionService {
             const newTransaction = this.entityManager.create(transactions_entity_1.Transaction, {
                 user,
                 date: new Date,
-                amount: body.amount,
+                amount: body.amount / 100,
                 transactionType: transactions_enum_1.TransactionType.DEPOSIT
             });
             const paymentHistory = await this.entityManager.create(payment_entity_1.PaymentHistory, {
-                amount: body.amount,
+                amount: body.amount / 100,
                 payment_id: body.payment_id,
                 currency: body.currency,
                 masked_card: body.masked_card,

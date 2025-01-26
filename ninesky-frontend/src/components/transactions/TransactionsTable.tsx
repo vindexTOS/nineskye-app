@@ -11,17 +11,11 @@ export default function TransactionsTable() {
     })
 
   // Total number of transactions
-  const [totalTransactions, setTotalTransactions] = useState(10)
+ 
   const pageSize = 10; // Number of transactions per page
   const [currentPage, setCurrentPage] = useState(1);
-   const [data,setData] = useState([])
-  useEffect(()=>{
-    if(userInfo.data){
-      console.log()
-      setTotalTransactions(userInfo.data.data.transactions.length)
-  
-    }
-   },[userInfo])
+ 
+ 
 
   // Sample data for the table
   // const data = Array.from({ length: totalTransactions }, (_, index) => ({
@@ -33,7 +27,7 @@ export default function TransactionsTable() {
 
   // Calculate the current page data
   const startIndex = (currentPage - 1) * pageSize;
-  const currentData = userInfo.data.data.transactions.slice(startIndex, startIndex + pageSize);
+  const currentData = userInfo?.data?.data?.transactions.slice(startIndex, startIndex + pageSize);
 
   const columns = [
  
@@ -75,7 +69,7 @@ export default function TransactionsTable() {
     setCurrentPage(newPage);
   };
 
-  const totalPages = Math.ceil(userInfo.data.data.transactions.length / pageSize);
+  const totalPages = Math.ceil(userInfo?.data?.data?.transactions?.length / pageSize);
 
   return (
     <div className="w-full h-full mt-40 md:ml-0 ml-10">

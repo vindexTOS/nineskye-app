@@ -54,12 +54,12 @@ export class TransactionService {
       const newTransaction = this.entityManager.create(Transaction,{
         user,
         date: new Date,
-        amount: body.amount,
+        amount: body.amount / 100,
         transactionType: TransactionType.DEPOSIT
 
       })
       const paymentHistory = await this.entityManager.create(PaymentHistory,{
-        amount: body.amount,
+        amount: body.amount / 100,
         payment_id: body.payment_id,
         currency: body.currency,
         masked_card: body.masked_card,
