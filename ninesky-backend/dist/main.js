@@ -2430,13 +2430,13 @@ let TransactionService = class TransactionService {
                 "currency": paymentReq.currency,
                 "merchant_id": 1549901,
                 "order_desc": paymentReq.userId,
-                "amount": paymentReq.amount * 100,
+                "amount": paymentReq.amount,
                 "signature": signature
             }
         };
     }
     async buildSignature(paymentReq, unixSecond) {
-        return `test|${paymentReq.amount * 100}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/transaction/deposite`;
+        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/transaction/deposite`;
     }
     async hashData(data) {
         console.log(crypto.createHash('sha1').update(data).digest('hex'));
