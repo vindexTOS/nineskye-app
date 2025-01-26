@@ -12,7 +12,7 @@ import { User } from '../../libs/entities/user.entity';
 import { PaymentHistory } from '../../libs/entities/payment.entity';
 import { Transaction } from '../../libs/entities/transactions.entity';
 import { TransactionType } from '../../libs/enums/transactions.enum';
-
+ 
 @Injectable()
 export class TransactionService {
     constructor(
@@ -81,7 +81,7 @@ export class TransactionService {
 
 
 
-  public async GetRedirectUrlAsync(paymentReq: any): Promise<any> {
+  public async GetRedirectUrlAsync(paymentReq: PaymentRequestDto): Promise<any> {
     const body = await this.createPaymentRequestBody(paymentReq);
     try {
       const response: AxiosResponse = await firstValueFrom(
