@@ -7,12 +7,11 @@ async function bootstrap() {
   const app = await NestFactory.create<NestApplication>(AppModule);
 
   app.enableCors({
-    origin: '*', // Allow all origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allowed HTTP methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-    credentials: false, // Disable credentials when using '*' for origin
+    origin: '*', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+    preflightContinue: false,
+    optionsSuccessStatus: 204,  
   });
-
 
   
   app.setGlobalPrefix('api')
