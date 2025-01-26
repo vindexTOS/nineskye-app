@@ -7,12 +7,11 @@ async function bootstrap() {
   const app = await NestFactory.create<NestApplication>(AppModule);
 
   app.enableCors({
-    origin: true, // Allow all origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all relevant methods
-    allowedHeaders: '*', // Allow all headers
-    credentials: true, // Allow cookies and credentials
+    origin: ['http://localhost:5173', 'https://ninesky.ge'], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
-  
   app.setGlobalPrefix('api')
   app.useGlobalPipes(
     new ValidationPipe({
