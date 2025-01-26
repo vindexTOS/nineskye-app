@@ -7,10 +7,10 @@ async function bootstrap() {
   const app = await NestFactory.create<NestApplication>(AppModule);
 
   app.enableCors({
-    origin:"*",// Set your frontend's origin explicitly
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+    origin: '*', // Allow all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allowed HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-    credentials: true, // Allow credentials (cookies, HTTP auth)
+    credentials: false, // Disable credentials when using '*' for origin
   });
 
 

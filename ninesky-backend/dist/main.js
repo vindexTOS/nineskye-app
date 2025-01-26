@@ -2329,10 +2329,10 @@ const common_1 = __webpack_require__(3);
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
-        origin: "*",
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
-        credentials: true,
+        credentials: false,
     });
     app.setGlobalPrefix('api');
     app.useGlobalPipes(new common_1.ValidationPipe({
