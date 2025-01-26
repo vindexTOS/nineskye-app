@@ -6,8 +6,9 @@ export class TransactionController {
 
   constructor(private readonly transactionService: TransactionService) { }
 
-  @Get("callback-topay")
+  @Post("callback-topay")
   async callBackToPay(@Body() paymentReq: any) {
+
     return this.transactionService.GetRedirectUrlAsync(paymentReq)
   }
 

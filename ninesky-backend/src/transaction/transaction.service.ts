@@ -82,6 +82,7 @@ export class TransactionService {
 
 
   public async GetRedirectUrlAsync(paymentReq: PaymentRequestDto): Promise<any> {
+    console.log(paymentReq)
     const body = await this.createPaymentRequestBody(paymentReq);
     try {
       const response: AxiosResponse = await firstValueFrom(

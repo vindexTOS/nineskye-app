@@ -2279,6 +2279,7 @@ let TransactionService = class TransactionService {
         }
     }
     async GetRedirectUrlAsync(paymentReq) {
+        console.log(paymentReq);
         const body = await this.createPaymentRequestBody(paymentReq);
         try {
             const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post('https://pay.flitt.com/api/checkout/url', body, {
@@ -2377,7 +2378,7 @@ let TransactionController = class TransactionController {
 };
 exports.TransactionController = TransactionController;
 __decorate([
-    (0, common_1.Get)("callback-topay"),
+    (0, common_1.Post)("callback-topay"),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
