@@ -107,7 +107,7 @@ export class TransactionService {
     return {
       "request": {
         "server_callback_url": "https://ninesky.ge/backend/api/transaction/deposite",
-        "order_id": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
+        "order_id": `userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
         "currency": paymentReq.currency,
         "merchant_id": 1549901,
         "order_desc": paymentReq.userId,
