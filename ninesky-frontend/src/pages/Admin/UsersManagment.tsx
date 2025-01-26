@@ -212,7 +212,21 @@ const {Text} = Typography
 
 
   const columns = [
-    { title: 'ID', dataIndex: 'id', key: 'id' },
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      render: (id: string) => (
+        <div style={{
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          maxWidth: '120px', // Adjust the width as needed
+        }}>
+          {id}
+        </div>
+      ),
+    },
     { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: 'First Name', dataIndex: ['userDetails', 'first_name'], key: 'first_name' },
     { title: 'Last Name', dataIndex: ['userDetails', 'last_name'], key: 'last_name' },

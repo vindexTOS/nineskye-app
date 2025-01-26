@@ -17,9 +17,8 @@ export class PaymentHistory {
   @Column()
   masked_card: string;
 
-  @Column()
+  @Column('text')
   maskresponse_signature_stringed_card: string;
-
   @Column()
   userId: string;
 

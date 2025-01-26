@@ -4,6 +4,7 @@ import { AccessLevel } from 'libs/enums/accese.levels.enum';
 import { Transaction } from './transactions.entity';
 import { TransactionType } from 'libs/enums/transactions.enum';
 import { UserDetails } from './userDetails.entity';
+import { PaymentHistory } from './payment.entity';
 
 
 @Entity()
@@ -32,6 +33,8 @@ export class User {
   
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
+  @OneToMany(() => PaymentHistory, (payment_history) => payment_history.user)
+  payment_history: PaymentHistory[];
 
   get balance(): number {
     const deposits = this.transactions

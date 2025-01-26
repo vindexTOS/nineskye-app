@@ -58,23 +58,24 @@ export class TransactionService {
         transactionType: TransactionType.DEPOSIT
 
       })
-      await this.entityManager.create(PaymentHistory,{
+      const paymentHistory = await this.entityManager.create(PaymentHistory,{
         amount: body.amount,
         payment_id: body.payment_id,
         currency: body.currency,
         masked_card: body.masked_card,
         maskresponse_signature_stringed_card: body.response_signature_string,
-        userId: userId
+        userId: userId,
+        user,
       })
 
 
-
-
-      return this.entityManager.save(Transaction,newTransaction)
+    
+     await this.entityManager.save(PaymentHistory,paymentHistory)
+      return await this.entityManager.save(Transaction,newTransaction)
 
 
     } catch (error) {
-
+      console.log(error)
       throw new ConflictException("Payment failed")
     }
   }

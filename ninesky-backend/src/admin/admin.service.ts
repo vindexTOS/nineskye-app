@@ -14,6 +14,8 @@ import { PriceDto } from 'libs/dtos/PriceDto/updatePriceDto';
 import { FlightFrom } from 'libs/enums/flightsFrom.enum';
 import * as bcrypt from 'bcrypt';
 import { AccessLevel } from 'libs/enums/accese.levels.enum';
+import { PaymentHistory } from 'libs/entities/payment.entity';
+import { Transaction } from 'libs/entities/transactions.entity';
 
 @Injectable()
 export class AdminService implements OnModuleInit {
@@ -27,6 +29,10 @@ export class AdminService implements OnModuleInit {
     private readonly parcelRepository: Repository<Parcel>,
     @InjectRepository(Price)
     private readonly PriceRepository: Repository<Price>,
+    @InjectRepository(PaymentHistory)
+    private readonly paymentHistory: Repository<PaymentHistory>,
+    @InjectRepository(Transaction)
+    private readonly transactionRepostiory: Repository<Transaction>,
   ) { }
 
   async onModuleInit() {
@@ -266,5 +272,79 @@ export class AdminService implements OnModuleInit {
       
     }
   }
+  async getPaymentHistory(
+    page: number,
+    limit: number,
+    userId?: string,
+    sort: 'ASC' | 'DESC' = 'DESC',
+  ) {
+    try {
+      const skip = (page - 1) * limit;
+      console.log()
+      // Build the query
+      const query = this.paymentHistory.createQueryBuilder('paymentHistory');
+  
+      // Search by userId if provided
+      if (userId) {
+        query.where('paymentHistory.userId = :userId', { userId });
+      }
+  
+      // Add sorting by date
+      query.orderBy('paymentHistory.date', sort);
+  
+      // Add pagination
+      query.skip(skip).take(limit);
+  
+      // Execute query and get total count
+      const [data, total] = await query.getManyAndCount();
+  
+      return {
+        data,
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      console.error('Error in getPaymentHistory:', error);
+      throw new Error(error.message);
+    }
+  }
 
+  async transactionHistory(
+    page: number,
+    limit: number,
+    userId?: string,
+    sort: 'ASC' | 'DESC' = 'DESC',
+  ) {
+    try {
+      const skip = (page - 1) * limit;
+      console.log()
+      // Build the query
+      const query = this.transactionRepostiory.createQueryBuilder('Transaction');
+  
+      // Search by userId if provided
+      if (userId) {
+        query.where('transactions.userId = :userId', { userId });
+      }
+  
+      // Add sorting by date
+      query.orderBy('Transaction.date', sort);
+  
+      // Add pagination
+      query.skip(skip).take(limit);
+  
+      // Execute query and get total count
+      const [data, total] = await query.getManyAndCount();
+  
+      return {
+        data,
+        total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      console.error('Error in Transaction:', error);
+      throw new Error(error.message);
+    }
+  }
 }

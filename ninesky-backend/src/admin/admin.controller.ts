@@ -6,7 +6,7 @@ import { UpdateParcelDto } from 'libs/dtos/parcelDtos.ts/update-parcel.dto';
 import { JwtAdminGuard } from 'libs/guards/jwt.Admin.Guard';
 
 
-// @UseGuards(JwtAdminGuard)
+@UseGuards(JwtAdminGuard)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService,
@@ -57,5 +57,25 @@ export class AdminController {
   @Put('update-price')
   updatePrice(@Query() data : {china : number, turkey : number}){
     return this.adminService.updatePrice(data)
+  }
+
+  // 
+  @Get('/payment-history')
+  async paymentHistory(
+    @Query('page') page: number =1, // Default to page 1
+    @Query('limit') limit: number = 10, // Default to 10 items per page
+    @Query('userId') userId?: string, // Optional userId for search
+    @Query('sort') sort: 'ASC' | 'DESC' = 'DESC', // Sort order (default: DESC)
+  ) {
+    return this.adminService.getPaymentHistory(page, limit, userId, sort);
+  }
+  @Get('/transaction-history')
+  async transactionHistory(
+    @Query('page') page: number =1, // Default to page 1
+    @Query('limit') limit: number = 10, // Default to 10 items per page
+    @Query('userId') userId?: string, // Optional userId for search
+    @Query('sort') sort: 'ASC' | 'DESC' = 'DESC', // Sort order (default: DESC)
+  ) {
+    return this.adminService.transactionHistory(page, limit, userId, sort);
   }
 }

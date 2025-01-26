@@ -6,9 +6,11 @@ import { Parcel } from 'libs/entities/parcel.entity';
 import { User } from 'libs/entities/user.entity';
 import { Flight } from 'libs/entities/flight.entity';
 import { Price } from 'libs/entities/prices.entity';
+import { PaymentHistory } from 'libs/entities/payment.entity';
+import { Transaction } from 'libs/entities/transactions.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Parcel, User, Flight, Price])],
+  imports: [TypeOrmModule.forFeature([Parcel, User, Flight, Price,PaymentHistory, Transaction])],
   controllers: [AdminController],
   providers: [AdminService],
 })

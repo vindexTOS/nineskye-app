@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Breadcrumb } from 'antd';
-import { MenuOutlined, HomeOutlined, UserOutlined, FileOutlined, LogoutOutlined, DollarCircleOutlined } from '@ant-design/icons';
+import { MenuOutlined, HomeOutlined, UserOutlined, FileOutlined, LogoutOutlined, DollarCircleOutlined, BankFilled, TransactionOutlined } from '@ant-design/icons';
 import 'antd/dist/reset.css'; // Ensure Ant Design styles are included
 import { Outlet, useNavigate } from 'react-router-dom';
 import Cookies from "universal-cookie"
@@ -80,6 +80,12 @@ const cookies = new Cookies
           </Menu.Item>
           <Menu.Item key="price-managment" icon={<DollarCircleOutlined />}>
             ფასის
+          </Menu.Item>
+          <Menu.Item key="payment-history" icon={<BankFilled />}>
+          ჩარიცხვები ბანკში
+          </Menu.Item>
+          <Menu.Item key="transaction-history" icon={<TransactionOutlined />}>
+         ტრანზაქციები
           </Menu.Item>
           <Menu.Item key="logout" icon={<LogoutOutlined />}>
             გამოსვლა

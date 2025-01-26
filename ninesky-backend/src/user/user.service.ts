@@ -35,7 +35,7 @@ export class UserService {
     try {
       const user = await this.userRepository.findOne({
         where: { id },
-        relations: ['transactions', 'parcels', 'parcels.declaration', 'userDetails'],
+        relations: ['transactions', 'parcels', 'parcels.declaration', 'userDetails' ,"payment_history" ],
       });
 
       return {

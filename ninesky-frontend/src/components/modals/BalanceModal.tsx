@@ -5,6 +5,7 @@ import { callBackToPay } from '../../API/User/Payment';
 import { paymenttype } from '../../types/payment';
 import { GetUserInfo } from '../../API/User/GetRequests';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
  
 
  
@@ -14,6 +15,13 @@ export default function BalanceModal() {
  queryFn:()=>GetUserInfo()
 
  })
+
+ useEffect(()=>{
+  if(userInfo.data){
+    console.log(userInfo.data)
+
+  }
+ },[userInfo])
  const mutation = useMutation({
      mutationFn:(body:paymenttype)=> {
         return callBackToPay(body)

@@ -33,10 +33,10 @@ const transactions_entity_1 = __webpack_require__(16);
 const userDetails_entity_1 = __webpack_require__(18);
 const flight_entity_1 = __webpack_require__(13);
 const prices_entity_1 = __webpack_require__(45);
-const app_controller_1 = __webpack_require__(52);
-const app_service_1 = __webpack_require__(53);
-const payment_entity_1 = __webpack_require__(20);
-const transaction_module_1 = __webpack_require__(54);
+const app_controller_1 = __webpack_require__(53);
+const app_service_1 = __webpack_require__(54);
+const payment_entity_1 = __webpack_require__(19);
+const transaction_module_1 = __webpack_require__(55);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -104,8 +104,8 @@ const parcel_entity_1 = __webpack_require__(9);
 const declaration_entity_1 = __webpack_require__(11);
 const transactions_entity_1 = __webpack_require__(16);
 const jwt_strategy_1 = __webpack_require__(31);
-const axios_1 = __webpack_require__(19);
-const payment_entity_1 = __webpack_require__(20);
+const axios_1 = __webpack_require__(20);
+const payment_entity_1 = __webpack_require__(19);
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
@@ -148,8 +148,8 @@ const declaration_entity_1 = __webpack_require__(11);
 const transactions_entity_1 = __webpack_require__(16);
 const transactions_enum_1 = __webpack_require__(17);
 const payment_status_enum_1 = __webpack_require__(12);
-const axios_1 = __webpack_require__(19);
-const payment_entity_1 = __webpack_require__(20);
+const axios_1 = __webpack_require__(20);
+const payment_entity_1 = __webpack_require__(19);
 let UserService = class UserService {
     constructor(transactionRepository, PaymentHistory, userRepository, parcelRepository, declarationRepository, httpService) {
         this.transactionRepository = transactionRepository;
@@ -163,7 +163,7 @@ let UserService = class UserService {
         try {
             const user = await this.userRepository.findOne({
                 where: { id },
-                relations: ['transactions', 'parcels', 'parcels.declaration', 'userDetails'],
+                relations: ['transactions', 'parcels', 'parcels.declaration', 'userDetails', "payment_history"],
             });
             return {
                 ...user,
@@ -274,6 +274,7 @@ const accese_levels_enum_1 = __webpack_require__(15);
 const transactions_entity_1 = __webpack_require__(16);
 const transactions_enum_1 = __webpack_require__(17);
 const userDetails_entity_1 = __webpack_require__(18);
+const payment_entity_1 = __webpack_require__(19);
 let User = class User {
     get balance() {
         const deposits = this.transactions
@@ -318,6 +319,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => transactions_entity_1.Transaction, (transaction) => transaction.user),
     __metadata("design:type", Array)
 ], User.prototype, "transactions", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => payment_entity_1.PaymentHistory, (payment_history) => payment_history.user),
+    __metadata("design:type", Array)
+], User.prototype, "payment_history", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);
@@ -704,12 +709,6 @@ exports.UserDetails = UserDetails = __decorate([
 
 /***/ }),
 /* 19 */
-/***/ ((module) => {
-
-module.exports = require("@nestjs/axios");
-
-/***/ }),
-/* 20 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -751,7 +750,7 @@ __decorate([
     __metadata("design:type", String)
 ], PaymentHistory.prototype, "masked_card", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)('text'),
     __metadata("design:type", String)
 ], PaymentHistory.prototype, "maskresponse_signature_stringed_card", void 0);
 __decorate([
@@ -771,6 +770,12 @@ exports.PaymentHistory = PaymentHistory = __decorate([
     (0, typeorm_1.Entity)()
 ], PaymentHistory);
 
+
+/***/ }),
+/* 20 */
+/***/ ((module) => {
+
+module.exports = require("@nestjs/axios");
 
 /***/ }),
 /* 21 */
@@ -1545,12 +1550,14 @@ const parcel_entity_1 = __webpack_require__(9);
 const user_entity_1 = __webpack_require__(7);
 const flight_entity_1 = __webpack_require__(13);
 const prices_entity_1 = __webpack_require__(45);
+const payment_entity_1 = __webpack_require__(19);
+const transactions_entity_1 = __webpack_require__(16);
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
 exports.AdminModule = AdminModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([parcel_entity_1.Parcel, user_entity_1.User, flight_entity_1.Flight, prices_entity_1.Price])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([parcel_entity_1.Parcel, user_entity_1.User, flight_entity_1.Flight, prices_entity_1.Price, payment_entity_1.PaymentHistory, transactions_entity_1.Transaction])],
         controllers: [admin_controller_1.AdminController],
         providers: [admin_service_1.AdminService],
     })
@@ -1574,7 +1581,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d;
+var _a, _b, _c, _d, _e, _f;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminService = void 0;
 const common_1 = __webpack_require__(3);
@@ -1587,12 +1594,16 @@ const prices_entity_1 = __webpack_require__(45);
 const flightsFrom_enum_1 = __webpack_require__(14);
 const bcrypt = __webpack_require__(38);
 const accese_levels_enum_1 = __webpack_require__(15);
+const payment_entity_1 = __webpack_require__(19);
+const transactions_entity_1 = __webpack_require__(16);
 let AdminService = class AdminService {
-    constructor(flightRepositry, userRepository, parcelRepository, PriceRepository) {
+    constructor(flightRepositry, userRepository, parcelRepository, PriceRepository, paymentHistory, transactionRepostiory) {
         this.flightRepositry = flightRepositry;
         this.userRepository = userRepository;
         this.parcelRepository = parcelRepository;
         this.PriceRepository = PriceRepository;
+        this.paymentHistory = paymentHistory;
+        this.transactionRepostiory = transactionRepostiory;
     }
     async onModuleInit() {
         const admin = await this.userRepository.findOne({ where: { email: process.env.ADMIN_EMAIL } });
@@ -1788,6 +1799,52 @@ let AdminService = class AdminService {
         catch (error) {
         }
     }
+    async getPaymentHistory(page, limit, userId, sort = 'DESC') {
+        try {
+            const skip = (page - 1) * limit;
+            console.log();
+            const query = this.paymentHistory.createQueryBuilder('paymentHistory');
+            if (userId) {
+                query.where('paymentHistory.userId = :userId', { userId });
+            }
+            query.orderBy('paymentHistory.date', sort);
+            query.skip(skip).take(limit);
+            const [data, total] = await query.getManyAndCount();
+            return {
+                data,
+                total,
+                currentPage: page,
+                totalPages: Math.ceil(total / limit),
+            };
+        }
+        catch (error) {
+            console.error('Error in getPaymentHistory:', error);
+            throw new Error(error.message);
+        }
+    }
+    async transactionHistory(page, limit, userId, sort = 'DESC') {
+        try {
+            const skip = (page - 1) * limit;
+            console.log();
+            const query = this.transactionRepostiory.createQueryBuilder('Transaction');
+            if (userId) {
+                query.where('transactions.userId = :userId', { userId });
+            }
+            query.orderBy('Transaction.date', sort);
+            query.skip(skip).take(limit);
+            const [data, total] = await query.getManyAndCount();
+            return {
+                data,
+                total,
+                currentPage: page,
+                totalPages: Math.ceil(total / limit),
+            };
+        }
+        catch (error) {
+            console.error('Error in Transaction:', error);
+            throw new Error(error.message);
+        }
+    }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([
@@ -1796,7 +1853,9 @@ exports.AdminService = AdminService = __decorate([
     __param(1, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __param(2, (0, typeorm_1.InjectRepository)(parcel_entity_1.Parcel)),
     __param(3, (0, typeorm_1.InjectRepository)(prices_entity_1.Price)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object])
+    __param(4, (0, typeorm_1.InjectRepository)(payment_entity_1.PaymentHistory)),
+    __param(5, (0, typeorm_1.InjectRepository)(transactions_entity_1.Transaction)),
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object, typeof (_e = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _e : Object, typeof (_f = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _f : Object])
 ], AdminService);
 
 
@@ -1862,6 +1921,7 @@ const admin_service_1 = __webpack_require__(44);
 const update_user_dto_1 = __webpack_require__(22);
 const UploadParcelsDto_1 = __webpack_require__(47);
 const update_parcel_dto_1 = __webpack_require__(51);
+const jwt_Admin_Guard_1 = __webpack_require__(52);
 let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
@@ -1889,6 +1949,12 @@ let AdminController = class AdminController {
     }
     updatePrice(data) {
         return this.adminService.updatePrice(data);
+    }
+    async paymentHistory(page = 1, limit = 10, userId, sort = 'DESC') {
+        return this.adminService.getPaymentHistory(page, limit, userId, sort);
+    }
+    async transactionHistory(page = 1, limit = 10, userId, sort = 'DESC') {
+        return this.adminService.transactionHistory(page, limit, userId, sort);
     }
 };
 exports.AdminController = AdminController;
@@ -1950,7 +2016,28 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "updatePrice", null);
+__decorate([
+    (0, common_1.Get)('/payment-history'),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('userId')),
+    __param(3, (0, common_1.Query)('sort')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "paymentHistory", null);
+__decorate([
+    (0, common_1.Get)('/transaction-history'),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('userId')),
+    __param(3, (0, common_1.Query)('sort')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "transactionHistory", null);
 exports.AdminController = AdminController = __decorate([
+    (0, common_1.UseGuards)(jwt_Admin_Guard_1.JwtAdminGuard),
     (0, common_1.Controller)('admin'),
     __metadata("design:paramtypes", [typeof (_a = typeof admin_service_1.AdminService !== "undefined" && admin_service_1.AdminService) === "function" ? _a : Object])
 ], AdminController);
@@ -2108,6 +2195,41 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.JwtAdminGuard = void 0;
+const common_1 = __webpack_require__(3);
+const passport_1 = __webpack_require__(27);
+let JwtAdminGuard = class JwtAdminGuard extends (0, passport_1.AuthGuard)('jwt') {
+    async canActivate(context) {
+        const request = context.switchToHttp().getRequest();
+        const canActivate = await super.canActivate(context);
+        const user = request.user;
+        if (!canActivate || !user) {
+            throw new common_1.UnauthorizedException('User not authorized or token is invalid');
+        }
+        if (user.accessLevel >= 3) {
+            return true;
+        }
+        throw new common_1.UnauthorizedException('User is not an admin');
+    }
+};
+exports.JwtAdminGuard = JwtAdminGuard;
+exports.JwtAdminGuard = JwtAdminGuard = __decorate([
+    (0, common_1.Injectable)()
+], JwtAdminGuard);
+
+
+/***/ }),
+/* 53 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
@@ -2115,7 +2237,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppController = void 0;
 const common_1 = __webpack_require__(3);
-const app_service_1 = __webpack_require__(53);
+const app_service_1 = __webpack_require__(54);
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
@@ -2138,7 +2260,7 @@ exports.AppController = AppController = __decorate([
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2179,7 +2301,7 @@ exports.AppService = AppService = __decorate([
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2192,9 +2314,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TransactionModule = void 0;
 const common_1 = __webpack_require__(3);
-const transaction_service_1 = __webpack_require__(55);
-const transaction_controller_1 = __webpack_require__(59);
-const axios_1 = __webpack_require__(19);
+const transaction_service_1 = __webpack_require__(56);
+const transaction_controller_1 = __webpack_require__(60);
+const axios_1 = __webpack_require__(20);
 let TransactionModule = class TransactionModule {
 };
 exports.TransactionModule = TransactionModule;
@@ -2211,7 +2333,7 @@ exports.TransactionModule = TransactionModule = __decorate([
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2228,13 +2350,13 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TransactionService = void 0;
 const common_1 = __webpack_require__(3);
-const moment = __webpack_require__(56);
-const crypto = __webpack_require__(57);
-const rxjs_1 = __webpack_require__(58);
+const moment = __webpack_require__(57);
+const crypto = __webpack_require__(58);
+const rxjs_1 = __webpack_require__(59);
 const typeorm_1 = __webpack_require__(8);
-const axios_1 = __webpack_require__(19);
+const axios_1 = __webpack_require__(20);
 const user_entity_1 = __webpack_require__(7);
-const payment_entity_1 = __webpack_require__(20);
+const payment_entity_1 = __webpack_require__(19);
 const transactions_entity_1 = __webpack_require__(16);
 const transactions_enum_1 = __webpack_require__(17);
 let TransactionService = class TransactionService {
@@ -2264,17 +2386,20 @@ let TransactionService = class TransactionService {
                 amount: body.amount,
                 transactionType: transactions_enum_1.TransactionType.DEPOSIT
             });
-            await this.entityManager.create(payment_entity_1.PaymentHistory, {
+            const paymentHistory = await this.entityManager.create(payment_entity_1.PaymentHistory, {
                 amount: body.amount,
                 payment_id: body.payment_id,
                 currency: body.currency,
                 masked_card: body.masked_card,
                 maskresponse_signature_stringed_card: body.response_signature_string,
-                userId: userId
+                userId: userId,
+                user,
             });
-            return this.entityManager.save(transactions_entity_1.Transaction, newTransaction);
+            await this.entityManager.save(payment_entity_1.PaymentHistory, paymentHistory);
+            return await this.entityManager.save(transactions_entity_1.Transaction, newTransaction);
         }
         catch (error) {
+            console.log(error);
             throw new common_1.ConflictException("Payment failed");
         }
     }
@@ -2326,25 +2451,25 @@ exports.TransactionService = TransactionService = __decorate([
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ ((module) => {
 
 module.exports = require("moment");
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ ((module) => {
 
 module.exports = require("crypto");
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ ((module) => {
 
 module.exports = require("rxjs");
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2364,7 +2489,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TransactionController = void 0;
 const common_1 = __webpack_require__(3);
-const transaction_service_1 = __webpack_require__(55);
+const transaction_service_1 = __webpack_require__(56);
 let TransactionController = class TransactionController {
     constructor(transactionService) {
         this.transactionService = transactionService;
