@@ -15,6 +15,6 @@ import { Transaction } from 'typeorm';
   ],
   controllers: [TransactionController],
   providers: [TransactionService],
-  exports: [TransactionService], // Export service if used elsewhere
+  exports: [TransactionService], 
 })
 export class TransactionModule {}

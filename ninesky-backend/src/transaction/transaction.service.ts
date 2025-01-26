@@ -105,7 +105,7 @@ export class TransactionService {
     console.log(signature)
     return {
       "request": {
-        "server_callback_url": "https://ninesky.ge/backend/api/user/deposite",
+        "server_callback_url": "https://ninesky.ge/backend/api/transaction/deposite",
         "order_id": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
         "currency": paymentReq.currency,
         "merchant_id": 1549901,
@@ -117,7 +117,7 @@ export class TransactionService {
   }
   private async buildSignature(paymentReq: any, unixSecond: number): Promise<string> {
     // Concatenate the parameters in the correct order // 
-    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
+    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/transaction/deposite`;
   }
 
   public async hashData(data: string): Promise<string> {

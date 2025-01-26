@@ -2299,7 +2299,7 @@ let TransactionService = class TransactionService {
         console.log(signature);
         return {
             "request": {
-                "server_callback_url": "https://ninesky.ge/backend/api/user/deposite",
+                "server_callback_url": "https://ninesky.ge/backend/api/transaction/deposite",
                 "order_id": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
                 "currency": paymentReq.currency,
                 "merchant_id": 1549901,
@@ -2310,7 +2310,7 @@ let TransactionService = class TransactionService {
         };
     }
     async buildSignature(paymentReq, unixSecond) {
-        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
+        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/transaction/deposite`;
     }
     async hashData(data) {
         console.log(crypto.createHash('sha1').update(data).digest('hex'));
