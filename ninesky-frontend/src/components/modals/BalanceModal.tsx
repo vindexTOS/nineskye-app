@@ -40,7 +40,7 @@ export default function BalanceModal() {
       const obj = {
         customerFirstName:userInfo.data.data.userDetails.first_name,
         customerLastName:userInfo.data.data.userDetails.last_name,
-        amount:values.amount ,
+        amount:values.amount * 100 ,
         userId:userInfo.data.data.id,
         currency:"GEL"
       }
