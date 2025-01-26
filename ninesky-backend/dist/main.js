@@ -22,20 +22,21 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppModule = void 0;
 const common_1 = __webpack_require__(3);
 const user_module_1 = __webpack_require__(4);
-const auth_module_1 = __webpack_require__(36);
+const auth_module_1 = __webpack_require__(33);
 const typeorm_1 = __webpack_require__(6);
-const config_1 = __webpack_require__(44);
+const config_1 = __webpack_require__(41);
 const user_entity_1 = __webpack_require__(7);
 const parcel_entity_1 = __webpack_require__(9);
 const declaration_entity_1 = __webpack_require__(11);
-const admin_module_1 = __webpack_require__(46);
+const admin_module_1 = __webpack_require__(43);
 const transactions_entity_1 = __webpack_require__(16);
 const userDetails_entity_1 = __webpack_require__(18);
 const flight_entity_1 = __webpack_require__(13);
-const prices_entity_1 = __webpack_require__(48);
-const app_controller_1 = __webpack_require__(55);
-const app_service_1 = __webpack_require__(56);
-const payment_entity_1 = __webpack_require__(23);
+const prices_entity_1 = __webpack_require__(45);
+const app_controller_1 = __webpack_require__(52);
+const app_service_1 = __webpack_require__(53);
+const payment_entity_1 = __webpack_require__(20);
+const transaction_module_1 = __webpack_require__(54);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -68,6 +69,7 @@ exports.AppModule = AppModule = __decorate([
                 }),
             }),
             typeorm_1.TypeOrmModule.forFeature([prices_entity_1.Price]),
+            transaction_module_1.TransactionModule,
         ],
     })
 ], AppModule);
@@ -94,16 +96,16 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserModule = void 0;
 const common_1 = __webpack_require__(3);
 const user_service_1 = __webpack_require__(5);
-const user_controller_1 = __webpack_require__(24);
+const user_controller_1 = __webpack_require__(21);
 const typeorm_1 = __webpack_require__(6);
 const user_entity_1 = __webpack_require__(7);
-const Jwt_Auth_Guard_1 = __webpack_require__(32);
+const Jwt_Auth_Guard_1 = __webpack_require__(26);
 const parcel_entity_1 = __webpack_require__(9);
 const declaration_entity_1 = __webpack_require__(11);
 const transactions_entity_1 = __webpack_require__(16);
-const jwt_strategy_1 = __webpack_require__(34);
+const jwt_strategy_1 = __webpack_require__(31);
 const axios_1 = __webpack_require__(19);
-const payment_entity_1 = __webpack_require__(23);
+const payment_entity_1 = __webpack_require__(20);
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
@@ -147,10 +149,7 @@ const transactions_entity_1 = __webpack_require__(16);
 const transactions_enum_1 = __webpack_require__(17);
 const payment_status_enum_1 = __webpack_require__(12);
 const axios_1 = __webpack_require__(19);
-const moment = __webpack_require__(20);
-const crypto = __webpack_require__(21);
-const rxjs_1 = __webpack_require__(22);
-const payment_entity_1 = __webpack_require__(23);
+const payment_entity_1 = __webpack_require__(20);
 let UserService = class UserService {
     constructor(transactionRepository, PaymentHistory, userRepository, parcelRepository, declarationRepository, httpService) {
         this.transactionRepository = transactionRepository;
@@ -206,42 +205,6 @@ let UserService = class UserService {
         catch (error) {
         }
     }
-    async depositeBalance(body) {
-        try {
-            const userId = body.order_id.split(";")[0].split(":")[1];
-            console.log(body.order_status);
-            if (body.order_status != 'approved') {
-                console.log("Order has not been approved");
-                throw new common_1.ConflictException("Payment failed");
-            }
-            const user = await this.userRepository.findOne({
-                where: {
-                    id: userId
-                }
-            });
-            if (!user) {
-                throw new common_1.NotFoundException("user does not not existed");
-            }
-            const newTransaction = this.transactionRepository.create({
-                user,
-                date: new Date,
-                amount: body.amount,
-                transactionType: transactions_enum_1.TransactionType.DEPOSIT
-            });
-            await this.PaymentHistory.create({
-                amount: body.amount,
-                payment_id: body.payment_id,
-                currency: body.currency,
-                masked_card: body.masked_card,
-                maskresponse_signature_stringed_card: body.response_signature_string,
-                userId: userId
-            });
-            return this.transactionRepository.save(newTransaction);
-        }
-        catch (error) {
-            throw new common_1.ConflictException("Payment failed");
-        }
-    }
     async payParcels(userId, parcels) {
         const user = await this.userRepository.findOne({
             where: { id: userId },
@@ -268,44 +231,6 @@ let UserService = class UserService {
             user,
         });
         await this.transactionRepository.save(createTransaction);
-    }
-    async GetRedirectUrlAsync(paymentReq) {
-        const body = await this.createPaymentRequestBody(paymentReq);
-        try {
-            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post('https://pay.flitt.com/api/checkout/url', body, {
-                headers: { 'Content-Type': 'application/json' }
-            }));
-            return response.data;
-        }
-        catch (error) {
-            console.error('Error making payment request:', error.response?.data || error.message);
-            throw new Error('Payment request failed');
-        }
-    }
-    async createPaymentRequestBody(paymentReq) {
-        const unixSecound = moment().unix();
-        const signatureData = await this.buildSignature(paymentReq, unixSecound);
-        const signature = (await this.hashData(signatureData)).toLowerCase();
-        console.log(signatureData);
-        console.log(signature);
-        return {
-            "request": {
-                "server_callback_url": "https://ninesky.ge/backend/api/user/deposite",
-                "order_id": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
-                "currency": paymentReq.currency,
-                "merchant_id": 1549901,
-                "order_desc": paymentReq.userId,
-                "amount": paymentReq.amount,
-                "signature": signature
-            }
-        };
-    }
-    async buildSignature(paymentReq, unixSecond) {
-        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
-    }
-    async hashData(data) {
-        console.log(crypto.createHash('sha1').update(data).digest('hex'));
-        return crypto.createHash('sha1').update(data).digest('hex');
     }
 };
 exports.UserService = UserService;
@@ -785,24 +710,6 @@ module.exports = require("@nestjs/axios");
 
 /***/ }),
 /* 20 */
-/***/ ((module) => {
-
-module.exports = require("moment");
-
-/***/ }),
-/* 21 */
-/***/ ((module) => {
-
-module.exports = require("crypto");
-
-/***/ }),
-/* 22 */
-/***/ ((module) => {
-
-module.exports = require("rxjs");
-
-/***/ }),
-/* 23 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -866,7 +773,7 @@ exports.PaymentHistory = PaymentHistory = __decorate([
 
 
 /***/ }),
-/* 24 */
+/* 21 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -887,10 +794,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UserController = void 0;
 const common_1 = __webpack_require__(3);
 const user_service_1 = __webpack_require__(5);
-const update_user_dto_1 = __webpack_require__(25);
-const getUser_1 = __webpack_require__(29);
-const platform_express_1 = __webpack_require__(30);
-const createDeclarationDto_1 = __webpack_require__(31);
+const update_user_dto_1 = __webpack_require__(22);
+const Jwt_Auth_Guard_1 = __webpack_require__(26);
+const getUser_1 = __webpack_require__(28);
+const platform_express_1 = __webpack_require__(29);
+const createDeclarationDto_1 = __webpack_require__(30);
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -903,12 +811,6 @@ let UserController = class UserController {
     }
     async declarateParcel(body, file) {
         return await this.userService.createDeclaration({ ...body, invoice_Pdf: file.buffer });
-    }
-    async callBackToPay(paymentReq) {
-        return this.userService.GetRedirectUrlAsync(paymentReq);
-    }
-    async updateBalance(body) {
-        return this.userService.depositeBalance(body);
     }
     async payParcels(user, body) {
         return this.userService.payParcels(user.sub, body);
@@ -940,20 +842,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "declarateParcel", null);
 __decorate([
-    (0, common_1.Get)("callback-topay"),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "callBackToPay", null);
-__decorate([
-    (0, common_1.Post)('deposite'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "updateBalance", null);
-__decorate([
     (0, common_1.Post)('pay-parcels'),
     __param(0, (0, getUser_1.GetUser)()),
     __param(1, (0, common_1.Body)()),
@@ -962,33 +850,34 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "payParcels", null);
 exports.UserController = UserController = __decorate([
+    (0, common_1.UseGuards)(Jwt_Auth_Guard_1.JwtAuthGuard),
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [typeof (_a = typeof user_service_1.UserService !== "undefined" && user_service_1.UserService) === "function" ? _a : Object])
 ], UserController);
 
 
 /***/ }),
-/* 25 */
+/* 22 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateUserDto = void 0;
-const mapped_types_1 = __webpack_require__(26);
-const create_user_dto_1 = __webpack_require__(27);
+const mapped_types_1 = __webpack_require__(23);
+const create_user_dto_1 = __webpack_require__(24);
 class UpdateUserDto extends (0, mapped_types_1.PartialType)(create_user_dto_1.CreateUserDto) {
 }
 exports.UpdateUserDto = UpdateUserDto;
 
 
 /***/ }),
-/* 26 */
+/* 23 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/mapped-types");
 
 /***/ }),
-/* 27 */
+/* 24 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1004,7 +893,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateUserDto = void 0;
-const class_validator_1 = __webpack_require__(28);
+const class_validator_1 = __webpack_require__(25);
 const accese_levels_enum_1 = __webpack_require__(15);
 class CreateUserDto {
 }
@@ -1065,13 +954,51 @@ __decorate([
 
 
 /***/ }),
-/* 28 */
+/* 25 */
 /***/ ((module) => {
 
 module.exports = require("class-validator");
 
 /***/ }),
-/* 29 */
+/* 26 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.JwtAuthGuard = void 0;
+const common_1 = __webpack_require__(3);
+const passport_1 = __webpack_require__(27);
+let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
+    async canActivate(context) {
+        const request = context.switchToHttp().getRequest();
+        const canActivate = await super.canActivate(context);
+        const user = request.user;
+        if (!canActivate || !user) {
+            throw new common_1.UnauthorizedException('User not authorized or token is invalid');
+        }
+        return true;
+    }
+};
+exports.JwtAuthGuard = JwtAuthGuard;
+exports.JwtAuthGuard = JwtAuthGuard = __decorate([
+    (0, common_1.Injectable)()
+], JwtAuthGuard);
+
+
+/***/ }),
+/* 27 */
+/***/ ((module) => {
+
+module.exports = require("@nestjs/passport");
+
+/***/ }),
+/* 28 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -1085,13 +1012,13 @@ exports.GetUser = (0, common_1.createParamDecorator)((data, ctx) => {
 
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/platform-express");
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1107,7 +1034,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateDeclarationDto = void 0;
-const class_validator_1 = __webpack_require__(28);
+const class_validator_1 = __webpack_require__(25);
 class CreateDeclarationDto {
 }
 exports.CreateDeclarationDto = CreateDeclarationDto;
@@ -1142,53 +1069,15 @@ __decorate([
 
 
 /***/ }),
-/* 32 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.JwtAuthGuard = void 0;
-const common_1 = __webpack_require__(3);
-const passport_1 = __webpack_require__(33);
-let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
-    async canActivate(context) {
-        const request = context.switchToHttp().getRequest();
-        const canActivate = await super.canActivate(context);
-        const user = request.user;
-        if (!canActivate || !user) {
-            throw new common_1.UnauthorizedException('User not authorized or token is invalid');
-        }
-        return true;
-    }
-};
-exports.JwtAuthGuard = JwtAuthGuard;
-exports.JwtAuthGuard = JwtAuthGuard = __decorate([
-    (0, common_1.Injectable)()
-], JwtAuthGuard);
-
-
-/***/ }),
-/* 33 */
-/***/ ((module) => {
-
-module.exports = require("@nestjs/passport");
-
-/***/ }),
-/* 34 */
+/* 31 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtStrategy = void 0;
 const common_1 = __webpack_require__(3);
-const passport_1 = __webpack_require__(33);
-const passport_jwt_1 = __webpack_require__(35);
+const passport_1 = __webpack_require__(27);
+const passport_jwt_1 = __webpack_require__(32);
 class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy, 'jwt') {
     constructor() {
         super({
@@ -1209,13 +1098,13 @@ exports.JwtStrategy = JwtStrategy;
 
 
 /***/ }),
-/* 35 */
+/* 32 */
 /***/ ((module) => {
 
 module.exports = require("passport-jwt");
 
 /***/ }),
-/* 36 */
+/* 33 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1228,11 +1117,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthModule = void 0;
 const common_1 = __webpack_require__(3);
-const auth_service_1 = __webpack_require__(37);
-const auth_controller_1 = __webpack_require__(42);
-const jwt_1 = __webpack_require__(38);
-const config_1 = __webpack_require__(44);
-const mailer_module_1 = __webpack_require__(45);
+const auth_service_1 = __webpack_require__(34);
+const auth_controller_1 = __webpack_require__(39);
+const jwt_1 = __webpack_require__(35);
+const config_1 = __webpack_require__(41);
+const mailer_module_1 = __webpack_require__(42);
 const user_entity_1 = __webpack_require__(7);
 const typeorm_1 = __webpack_require__(6);
 const userDetails_entity_1 = __webpack_require__(18);
@@ -1259,7 +1148,7 @@ exports.AuthModule = AuthModule = __decorate([
 
 
 /***/ }),
-/* 37 */
+/* 34 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1276,12 +1165,12 @@ var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthService = void 0;
 const common_1 = __webpack_require__(3);
-const jwt_1 = __webpack_require__(38);
-const mailer_service_1 = __webpack_require__(39);
+const jwt_1 = __webpack_require__(35);
+const mailer_service_1 = __webpack_require__(36);
 const user_entity_1 = __webpack_require__(7);
 const typeorm_1 = __webpack_require__(8);
 const userDetails_entity_1 = __webpack_require__(18);
-const bcrypt = __webpack_require__(41);
+const bcrypt = __webpack_require__(38);
 let AuthService = class AuthService {
     constructor(jwtService, entityManager, mailerService) {
         this.jwtService = jwtService;
@@ -1375,13 +1264,13 @@ exports.AuthService = AuthService = __decorate([
 
 
 /***/ }),
-/* 38 */
+/* 35 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/jwt");
 
 /***/ }),
-/* 39 */
+/* 36 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1397,7 +1286,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MailerService = void 0;
 const common_1 = __webpack_require__(3);
-const nodemailer = __webpack_require__(40);
+const nodemailer = __webpack_require__(37);
 let MailerService = class MailerService {
     constructor() {
         this.transporter = nodemailer.createTransport({
@@ -1437,19 +1326,19 @@ exports.MailerService = MailerService = __decorate([
 
 
 /***/ }),
-/* 40 */
+/* 37 */
 /***/ ((module) => {
 
 module.exports = require("nodemailer");
 
 /***/ }),
-/* 41 */
+/* 38 */
 /***/ ((module) => {
 
 module.exports = require("bcrypt");
 
 /***/ }),
-/* 42 */
+/* 39 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1469,8 +1358,8 @@ var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthController = void 0;
 const common_1 = __webpack_require__(3);
-const auth_service_1 = __webpack_require__(37);
-const auth_dto_1 = __webpack_require__(43);
+const auth_service_1 = __webpack_require__(34);
+const auth_dto_1 = __webpack_require__(40);
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -1524,7 +1413,7 @@ exports.AuthController = AuthController = __decorate([
 
 
 /***/ }),
-/* 43 */
+/* 40 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1539,7 +1428,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LoginDto = exports.RegisterDto = void 0;
-const class_validator_1 = __webpack_require__(28);
+const class_validator_1 = __webpack_require__(25);
 class RegisterDto {
 }
 exports.RegisterDto = RegisterDto;
@@ -1604,13 +1493,13 @@ __decorate([
 
 
 /***/ }),
-/* 44 */
+/* 41 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/config");
 
 /***/ }),
-/* 45 */
+/* 42 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1623,7 +1512,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MailerModule = void 0;
 const common_1 = __webpack_require__(3);
-const mailer_service_1 = __webpack_require__(39);
+const mailer_service_1 = __webpack_require__(36);
 let MailerModule = class MailerModule {
 };
 exports.MailerModule = MailerModule;
@@ -1636,7 +1525,7 @@ exports.MailerModule = MailerModule = __decorate([
 
 
 /***/ }),
-/* 46 */
+/* 43 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1649,13 +1538,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminModule = void 0;
 const common_1 = __webpack_require__(3);
-const admin_service_1 = __webpack_require__(47);
-const admin_controller_1 = __webpack_require__(49);
+const admin_service_1 = __webpack_require__(44);
+const admin_controller_1 = __webpack_require__(46);
 const typeorm_1 = __webpack_require__(6);
 const parcel_entity_1 = __webpack_require__(9);
 const user_entity_1 = __webpack_require__(7);
 const flight_entity_1 = __webpack_require__(13);
-const prices_entity_1 = __webpack_require__(48);
+const prices_entity_1 = __webpack_require__(45);
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
@@ -1669,7 +1558,7 @@ exports.AdminModule = AdminModule = __decorate([
 
 
 /***/ }),
-/* 47 */
+/* 44 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1694,9 +1583,9 @@ const user_entity_1 = __webpack_require__(7);
 const typeorm_2 = __webpack_require__(8);
 const parcel_entity_1 = __webpack_require__(9);
 const flight_entity_1 = __webpack_require__(13);
-const prices_entity_1 = __webpack_require__(48);
+const prices_entity_1 = __webpack_require__(45);
 const flightsFrom_enum_1 = __webpack_require__(14);
-const bcrypt = __webpack_require__(41);
+const bcrypt = __webpack_require__(38);
 const accese_levels_enum_1 = __webpack_require__(15);
 let AdminService = class AdminService {
     constructor(flightRepositry, userRepository, parcelRepository, PriceRepository) {
@@ -1912,7 +1801,7 @@ exports.AdminService = AdminService = __decorate([
 
 
 /***/ }),
-/* 48 */
+/* 45 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1949,7 +1838,7 @@ exports.Price = Price = __decorate([
 
 
 /***/ }),
-/* 49 */
+/* 46 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -1969,10 +1858,10 @@ var _a, _b, _c, _d, _e, _f;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminController = void 0;
 const common_1 = __webpack_require__(3);
-const admin_service_1 = __webpack_require__(47);
-const update_user_dto_1 = __webpack_require__(25);
-const UploadParcelsDto_1 = __webpack_require__(50);
-const update_parcel_dto_1 = __webpack_require__(54);
+const admin_service_1 = __webpack_require__(44);
+const update_user_dto_1 = __webpack_require__(22);
+const UploadParcelsDto_1 = __webpack_require__(47);
+const update_parcel_dto_1 = __webpack_require__(51);
 let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
@@ -2068,7 +1957,7 @@ exports.AdminController = AdminController = __decorate([
 
 
 /***/ }),
-/* 50 */
+/* 47 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2084,10 +1973,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UploadParcelsDto = void 0;
-const class_validator_1 = __webpack_require__(28);
-const class_transformer_1 = __webpack_require__(51);
-const create_parcel_dto_1 = __webpack_require__(52);
-const createFlightDto_1 = __webpack_require__(53);
+const class_validator_1 = __webpack_require__(25);
+const class_transformer_1 = __webpack_require__(48);
+const create_parcel_dto_1 = __webpack_require__(49);
+const createFlightDto_1 = __webpack_require__(50);
 class UploadParcelsDto {
 }
 exports.UploadParcelsDto = UploadParcelsDto;
@@ -2106,13 +1995,13 @@ __decorate([
 
 
 /***/ }),
-/* 51 */
+/* 48 */
 /***/ ((module) => {
 
 module.exports = require("class-transformer");
 
 /***/ }),
-/* 52 */
+/* 49 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2128,7 +2017,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateParcelDto = void 0;
-const class_validator_1 = __webpack_require__(28);
+const class_validator_1 = __webpack_require__(25);
 const shipping_status_enum_1 = __webpack_require__(10);
 class CreateParcelDto {
 }
@@ -2156,7 +2045,7 @@ __decorate([
 
 
 /***/ }),
-/* 53 */
+/* 50 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2172,7 +2061,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreateFlightDto = void 0;
-const class_validator_1 = __webpack_require__(28);
+const class_validator_1 = __webpack_require__(25);
 const flightsFrom_enum_1 = __webpack_require__(14);
 class CreateFlightDto {
 }
@@ -2195,21 +2084,21 @@ __decorate([
 
 
 /***/ }),
-/* 54 */
+/* 51 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateParcelDto = void 0;
-const mapped_types_1 = __webpack_require__(26);
-const create_parcel_dto_1 = __webpack_require__(52);
+const mapped_types_1 = __webpack_require__(23);
+const create_parcel_dto_1 = __webpack_require__(49);
 class UpdateParcelDto extends (0, mapped_types_1.PartialType)(create_parcel_dto_1.CreateParcelDto) {
 }
 exports.UpdateParcelDto = UpdateParcelDto;
 
 
 /***/ }),
-/* 55 */
+/* 52 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2226,7 +2115,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppController = void 0;
 const common_1 = __webpack_require__(3);
-const app_service_1 = __webpack_require__(56);
+const app_service_1 = __webpack_require__(53);
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
@@ -2249,7 +2138,7 @@ exports.AppController = AppController = __decorate([
 
 
 /***/ }),
-/* 56 */
+/* 53 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -2266,7 +2155,7 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppService = void 0;
 const common_1 = __webpack_require__(3);
-const prices_entity_1 = __webpack_require__(48);
+const prices_entity_1 = __webpack_require__(45);
 const typeorm_1 = __webpack_require__(8);
 let AppService = class AppService {
     constructor(entityManager) {
@@ -2287,6 +2176,224 @@ exports.AppService = AppService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.EntityManager !== "undefined" && typeorm_1.EntityManager) === "function" ? _a : Object])
 ], AppService);
+
+
+/***/ }),
+/* 54 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TransactionModule = void 0;
+const common_1 = __webpack_require__(3);
+const transaction_service_1 = __webpack_require__(55);
+const transaction_controller_1 = __webpack_require__(59);
+const axios_1 = __webpack_require__(19);
+let TransactionModule = class TransactionModule {
+};
+exports.TransactionModule = TransactionModule;
+exports.TransactionModule = TransactionModule = __decorate([
+    (0, common_1.Module)({
+        imports: [
+            axios_1.HttpModule,
+        ],
+        controllers: [transaction_controller_1.TransactionController],
+        providers: [transaction_service_1.TransactionService],
+        exports: [transaction_service_1.TransactionService],
+    })
+], TransactionModule);
+
+
+/***/ }),
+/* 55 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TransactionService = void 0;
+const common_1 = __webpack_require__(3);
+const moment = __webpack_require__(56);
+const crypto = __webpack_require__(57);
+const rxjs_1 = __webpack_require__(58);
+const typeorm_1 = __webpack_require__(8);
+const axios_1 = __webpack_require__(19);
+const user_entity_1 = __webpack_require__(7);
+const payment_entity_1 = __webpack_require__(20);
+const transactions_entity_1 = __webpack_require__(16);
+const transactions_enum_1 = __webpack_require__(17);
+let TransactionService = class TransactionService {
+    constructor(entityManager, httpService) {
+        this.entityManager = entityManager;
+        this.httpService = httpService;
+    }
+    async depositeBalance(body) {
+        try {
+            const userId = body.order_id.split(";")[0].split(":")[1];
+            console.log(body.order_status);
+            if (body.order_status != 'approved') {
+                console.log("Order has not been approved");
+                throw new common_1.ConflictException("Payment failed");
+            }
+            const user = await this.entityManager.findOne(user_entity_1.User, {
+                where: {
+                    id: userId
+                }
+            });
+            if (!user) {
+                throw new common_1.NotFoundException("user does not not existed");
+            }
+            const newTransaction = this.entityManager.create(transactions_entity_1.Transaction, {
+                user,
+                date: new Date,
+                amount: body.amount,
+                transactionType: transactions_enum_1.TransactionType.DEPOSIT
+            });
+            await this.entityManager.create(payment_entity_1.PaymentHistory, {
+                amount: body.amount,
+                payment_id: body.payment_id,
+                currency: body.currency,
+                masked_card: body.masked_card,
+                maskresponse_signature_stringed_card: body.response_signature_string,
+                userId: userId
+            });
+            return this.entityManager.save(transactions_entity_1.Transaction, newTransaction);
+        }
+        catch (error) {
+            throw new common_1.ConflictException("Payment failed");
+        }
+    }
+    async GetRedirectUrlAsync(paymentReq) {
+        const body = await this.createPaymentRequestBody(paymentReq);
+        try {
+            const response = await (0, rxjs_1.firstValueFrom)(this.httpService.post('https://pay.flitt.com/api/checkout/url', body, {
+                headers: { 'Content-Type': 'application/json' }
+            }));
+            return response.data;
+        }
+        catch (error) {
+            console.error('Error making payment request:', error.response?.data || error.message);
+            throw new Error('Payment request failed');
+        }
+    }
+    async createPaymentRequestBody(paymentReq) {
+        const unixSecound = moment().unix();
+        const signatureData = await this.buildSignature(paymentReq, unixSecound);
+        const signature = (await this.hashData(signatureData)).toLowerCase();
+        console.log(signatureData);
+        console.log(signature);
+        return {
+            "request": {
+                "server_callback_url": "https://ninesky.ge/backend/api/user/deposite",
+                "order_id": `userId:robikaID;firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
+                "currency": paymentReq.currency,
+                "merchant_id": 1549901,
+                "order_desc": paymentReq.userId,
+                "amount": paymentReq.amount,
+                "signature": signature
+            }
+        };
+    }
+    async buildSignature(paymentReq, unixSecond) {
+        return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/user/deposite`;
+    }
+    async hashData(data) {
+        console.log(crypto.createHash('sha1').update(data).digest('hex'));
+        return crypto.createHash('sha1').update(data).digest('hex');
+    }
+};
+exports.TransactionService = TransactionService;
+exports.TransactionService = TransactionService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_1.EntityManager !== "undefined" && typeorm_1.EntityManager) === "function" ? _a : Object, typeof (_b = typeof axios_1.HttpService !== "undefined" && axios_1.HttpService) === "function" ? _b : Object])
+], TransactionService);
+
+
+/***/ }),
+/* 56 */
+/***/ ((module) => {
+
+module.exports = require("moment");
+
+/***/ }),
+/* 57 */
+/***/ ((module) => {
+
+module.exports = require("crypto");
+
+/***/ }),
+/* 58 */
+/***/ ((module) => {
+
+module.exports = require("rxjs");
+
+/***/ }),
+/* 59 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TransactionController = void 0;
+const common_1 = __webpack_require__(3);
+const transaction_service_1 = __webpack_require__(55);
+let TransactionController = class TransactionController {
+    constructor(transactionService) {
+        this.transactionService = transactionService;
+    }
+    async callBackToPay(paymentReq) {
+        return this.transactionService.GetRedirectUrlAsync(paymentReq);
+    }
+    async updateBalance(body) {
+        return this.transactionService.depositeBalance(body);
+    }
+};
+exports.TransactionController = TransactionController;
+__decorate([
+    (0, common_1.Get)("callback-topay"),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], TransactionController.prototype, "callBackToPay", null);
+__decorate([
+    (0, common_1.Post)('deposite'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], TransactionController.prototype, "updateBalance", null);
+exports.TransactionController = TransactionController = __decorate([
+    (0, common_1.Controller)('transaction'),
+    __metadata("design:paramtypes", [typeof (_a = typeof transaction_service_1.TransactionService !== "undefined" && transaction_service_1.TransactionService) === "function" ? _a : Object])
+], TransactionController);
 
 
 /***/ })

@@ -14,6 +14,7 @@ import { Price } from 'libs/entities/prices.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PaymentHistory } from 'libs/entities/payment.entity';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   controllers: [AppController],
@@ -44,6 +45,7 @@ import { PaymentHistory } from 'libs/entities/payment.entity';
       }),
     }),
     TypeOrmModule.forFeature([Price]),
+    TransactionModule,
   ],
 })
 export class AppModule {}
