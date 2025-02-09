@@ -13,7 +13,7 @@ export default function Header() {
 
   useEffect(() => {
     if (data?.data) {
-      (data.data);
+   
       setPrices(data.data);
     }
   }, [data]);

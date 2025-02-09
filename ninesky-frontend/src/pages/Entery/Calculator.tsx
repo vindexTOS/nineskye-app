@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { GetPrice } from '../../API/Price/PriceManagment';
 
 export default function Calculator() {
   const [selectedCountry, setSelectedCountry] = useState('china');
@@ -6,19 +8,60 @@ export default function Calculator() {
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
   const [girth, setGirth] = useState('');
-  const [price, setPrice] = useState<any>(null);
-
-  const handleCalculate = () => {
-    const calculatedPrice = (parseFloat(weight) + parseFloat(width) + parseFloat(height) + parseFloat(girth)) * 0.1;
-    setPrice(calculatedPrice.toFixed(2));
-  };
-
+  const [price, setPrice] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const [referencePrices, setReferencePrices] = useState<any>(null);
+
+  // Fetch reference prices from API.
+  const { data } = useQuery({
+    queryKey: ['parcels-price'],
+    queryFn: () => GetPrice(),
+  });
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 500); // Delay to ensure the page has loaded
+    if (data?.data) {
+      console.log(data.data);
+      setReferencePrices(data.data);
+    }
+  }, [data]);
+
+  // Entrance animation effect.
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 500);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleCalculate = () => {
+    // Try to parse the weight from user input.
+    let effectiveWeight = parseFloat(weight);
+
+    // If weight is not provided or invalid, calculate using dimensions.
+    if (!effectiveWeight || isNaN(effectiveWeight)) {
+      effectiveWeight = (parseFloat(width) * parseFloat(height) * parseFloat(girth)) / 6000;
+    }
+
+    // Determine the unit price based on the selected country using referencePrices.
+    let unitPrice = 0;
+    if (referencePrices) {
+      if (selectedCountry.toLowerCase() === 'turkey') {
+        unitPrice = parseFloat(referencePrices.Turkey);
+      } else {
+        // For both "china" and "china-air", use China price.
+        unitPrice = parseFloat(referencePrices.China);
+      }
+    } else {
+      // Fallback defaults if referencePrices isn't loaded yet.
+      if (selectedCountry.toLowerCase() === 'turkey') {
+        unitPrice = 3.00;
+      } else {
+        unitPrice = 9.90;
+      }
+    }
+
+    // Calculate final price.
+    const calculatedPrice = effectiveWeight * unitPrice;
+    setPrice(calculatedPrice.toFixed(2));
+  };
 
   return (
     <div
@@ -30,7 +73,10 @@ export default function Calculator() {
       <h2 className="text-xl text-center font-bold mb-6">ფასის გამოთვლა</h2>
 
       <div className="mb-4">
-        <label htmlFor="country" className="block text-sm font-medium mb-2 text-white/90">
+        <label
+          htmlFor="country"
+          className="block text-sm font-medium mb-2 text-white/90"
+        >
           ქვეყანა
         </label>
         <select
@@ -39,15 +85,24 @@ export default function Calculator() {
           onChange={(e) => setSelectedCountry(e.target.value)}
           className="block w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2fb9ff] rounded-full text-sm shadow-md bg-white text-gray-700"
         >
-          <option value="china" className="text-black">ჩინეთი</option>
-          <option value="china-air" className="text-black">ჩინეთი-საჰაერო</option>
-          <option value="turkey" className="text-black">თურქეთი</option>
+          <option value="china" className="text-black">
+            ჩინეთი
+          </option>
+      
+          <option value="turkey" className="text-black">
+            თურქეთი
+          </option>
         </select>
       </div>
 
       <div className="flex flex-wrap -mx-2">
         <div className="w-full md:w-1/2 px-2 mb-4">
-          <label htmlFor="weight" className="block text-sm font-medium text-white/90 mb-1">წონა (kg)</label>
+          <label
+            htmlFor="weight"
+            className="block text-sm font-medium text-white/90 mb-1"
+          >
+            წონა (kg)
+          </label>
           <input
             type="number"
             id="weight"
@@ -58,7 +113,12 @@ export default function Calculator() {
         </div>
 
         <div className="w-full md:w-1/2 px-2 mb-4">
-          <label htmlFor="width" className="block text-sm font-medium text-white/90 mb-1">სიგრძე (cm)</label>
+          <label
+            htmlFor="width"
+            className="block text-sm font-medium text-white/90 mb-1"
+          >
+            სიგრძე (cm)
+          </label>
           <input
             type="number"
             id="width"
@@ -69,7 +129,12 @@ export default function Calculator() {
         </div>
 
         <div className="w-full md:w-1/2 px-2 mb-4">
-          <label htmlFor="height" className="block text-sm font-medium text-white/90 mb-1">სიმაღლე (cm)</label>
+          <label
+            htmlFor="height"
+            className="block text-sm font-medium text-white/90 mb-1"
+          >
+            სიმაღლე (cm)
+          </label>
           <input
             type="number"
             id="height"
@@ -80,7 +145,12 @@ export default function Calculator() {
         </div>
 
         <div className="w-full md:w-1/2 px-2 mb-4">
-          <label htmlFor="girth" className="block text-sm font-medium text-white/90 mb-1">სიგანე (cm)</label>
+          <label
+            htmlFor="girth"
+            className="block text-sm font-medium text-white/90 mb-1"
+          >
+            სიგანე (cm)
+          </label>
           <input
             type="number"
             id="girth"
@@ -99,9 +169,9 @@ export default function Calculator() {
         გამოთვლა
       </button>
 
-      {price !== null && (
+      {price !== '' && (
         <div className="mt-6 text-center text-xl font-bold">
-          გამოთვლილი ფასი: <span className="text-yellow-400">${price}</span>
+          გამოთვლილი ფასი: <span className="text-yellow-400">₾{price}</span>
         </div>
       )}
     </div>
