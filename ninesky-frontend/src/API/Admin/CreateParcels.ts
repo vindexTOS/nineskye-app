@@ -5,6 +5,7 @@ const cookies = new Cookies();
 
 export const CreateParcles = async (body: any) => {
   try {
+    console.log(body)
     const token = cookies.get("token");
     const res: any = await ApiManager(`admin/create-parcels`, {
       method: "POST",

@@ -108,11 +108,13 @@ export class AdminService implements OnModuleInit {
         }
         const createdParcel = this.parcelRepository.create({
           id: parcel.tracking_id,
-          price: Flight.flight_from === FlightFrom.CHINA ? parcel.weight * price.China : parcel.weight * price.Turkey,
+          price: Flight.flight_from === FlightFrom.CHINA 
+            ? parcel.weight * price.China 
+            : parcel.weight * price.Turkey,
           owner: owner ? owner : null,
           weight: parcel.weight,
           flight: Flight,
-        })
+        });
         parcels.push(createdParcel);
       }
       const createdParcel = await this.parcelRepository.save(parcels);

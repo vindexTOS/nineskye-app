@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import * as XLSX from 'xlsx';
 import { CreateParcles, GetParcels, UpdateParcels } from '../../API/Admin/CreateParcels';
 import Loading from '../../components/status/Loading';
-import { Button, Modal, Form, Input,Typography, message, Table, Pagination, Upload, Select } from 'antd';
+import { Button, Modal, Form, Input,Typography, message, Table, Pagination, Upload, Select, DatePicker } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { DeleteParcel } from '../../API/Admin/DeleteRequests';
 
@@ -141,7 +141,8 @@ const {Text} = Typography
     setIsSingleParcelModalOpen(true);
   };
 
-  const handleSingleParcelFinish = (values: any) => {
+  const handleSingleParcelFinish = (values: any) => { 
+  console.log(values)
     // Transform values into CreateParcelDto format
     const newParcel    = {
       tracking_id: values.tracking_id,
@@ -200,6 +201,7 @@ console.log(flightInfo)
     { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status' },
     { title: 'წონა', dataIndex: 'weight', key: 'weight' },
     { title: 'ფასი', dataIndex: 'price', key: 'price' },
+    // { title: 'თარიღი', dataIndex: 'arrived_at', key: 'arrived_at' },
     {
       title: 'დეკლერაცია',
       key: 'declaration',
@@ -264,7 +266,7 @@ console.log(flightInfo)
           </Button>
         </div>
         <Input.Search
-          placeholder="Search by Tracking ID"
+          placeholder="მოძებნა თრექინგ Id-ით"
           onSearch={(value) => setSearchTerm(value)}
           enterButton
           className="mb-6"
@@ -295,24 +297,28 @@ console.log(flightInfo)
 
  
          <Modal
-          title={selectedParcel ? 'Edit Parcel' : 'Add Parcel Manually'}
+          title={selectedParcel ? 'ამანათის რედაქტირება' : 'ამანათის ატვირთვა'}
           open={isModalOpen}
           onCancel={handleCancel}
           footer={null}
         >
           <Form form={form} layout="vertical" onFinish={handleUploadFinish}>
-            <Form.Item label="Flight ID" name="flight_id">
+            <Form.Item label="ფრენის ID" name="flight_id">
               <Input />
             </Form.Item>
-            <Form.Item label="Flight From" name="flight_from">
+            <Form.Item label="ქვეყანა" name="flight_from">
               <Select>
                 <Select.Option value="China">შინეთი</Select.Option>
                 <Select.Option value="Turkey">თურქეთი</Select.Option>
               </Select>
             </Form.Item>
-            <Form.Item label="Arrived At" name="arrived_at">
-              <Input />
-            </Form.Item>
+            <Form.Item
+  label="თარიღი"
+  name="arrived_at"
+  rules={[{ required: true, message: 'შეიყვანეთ ჩამოსვლა' }]}
+>
+  <DatePicker style={{ width: '100%' }} />
+</Form.Item>
             <Upload.Dragger
               name="file"
               multiple={false}
@@ -338,7 +344,7 @@ console.log(flightInfo)
         </Modal>
 {/*  */}
 <Modal
-          title="Edit Parcel"
+          title="ამანათის რედაქტირება"
           open={isEditModalOpen}
           onCancel={handleEditCancel}
           footer={null}
@@ -355,7 +361,7 @@ console.log(flightInfo)
             <Form.Item
               label="Shipping Status"
               name="shipping_status"
-              rules={[{ required: true, message: 'Please enter a Shipping Status' }]}
+              rules={[{ required: true, message: 'გთხოვთ შეიყვანოთ გადაზიდვის სტატუსი' }]}
             >
                  <Select>
                 <Select.Option value="Brought">საწყობში</Select.Option>
@@ -367,7 +373,7 @@ console.log(flightInfo)
             <Form.Item
               label="Payment Status"
               name="payment_status"
-              rules={[{ required: true, message: 'Please enter a Payment Status' }]}
+              rules={[{ required: true, message: 'გთხოვთ შეიყვანეთ გადახდის სტატუსი' }]}
             >
               <Select>
                 <Select.Option value="Paid">გადახდილი</Select.Option>
@@ -383,21 +389,21 @@ console.log(flightInfo)
         </Modal>
       {/*  */}
         <Modal
-          title="Add Single Parcel"
+          title="დაამატე თითო ამანათი"
           open={isSingleParcelModalOpen}
           onCancel={handleSingleParcelCancel}
           footer={null}
         >
           <Form form={singleParcelForm} layout="vertical" onFinish={handleSingleParcelFinish}>
             <Form.Item
-              label="Flight ID"
+              label="რეისის ID"
               name="flight_id"
               rules={[{ required: true, message: 'შეიყვანეთ რეისის იდენტიფიკატორი' }]}
             >
               <Input />
             </Form.Item>
             <Form.Item
-              label="Flight From"
+              label="ქვეყანა"
               name="flight_from"
               rules={[{ required: true, message: 'შეიყვანეთ ტრანსპორტის ქვეყანა' }]}
             >
@@ -407,24 +413,24 @@ console.log(flightInfo)
               </Select>
             </Form.Item>
             <Form.Item
-              label="Arrived At"
-              name="arrived_at"
-              rules={[{ required: true, message: 'შეიყვანეთ ჩამოსვლა' }]}
-            >
-              <Input />
-            </Form.Item>
+  label="თარიღი"
+  name="arrived_at"
+  rules={[{ required: true, message: 'შეიყვანეთ ჩამოსვლა' }]}
+>
+  <DatePicker style={{ width: '100%' }} />
+</Form.Item>
             <Form.Item
-              label="Tracking ID"
+              label="თრექინგის ID"
               name="tracking_id"
               rules={[{ required: true, message: 'გთხოვთ შეიყვანეთ თრექინგ იდენტიფიკატორი' }]}
             >
               <Input />
             </Form.Item>
-            <Form.Item label="Weight" name="წოპა">
+            <Form.Item label="წონა" name="weight">
               <Input type="number" />
             </Form.Item>
             <Form.Item
-              label="Owner ID"
+              label="მომხმარებლის ID"
               name="ownerId"
               rules={[{ required: true, message: 'შეიყვანეთ მომხმარებლის იდენტიფიკატორი' }]}
             >
