@@ -54,7 +54,7 @@ export default function Header() {
       <span className="inline-block w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse mt-[3px]"></span>
       <div className="flex justify-between w-full">
         <span className="font-medium text-[14px]">ჩინეთიდან საჰაერო გზით ტრანსპორტირება 1კგ:  <span className="text-yellow-400 font-bold ml-4">
-          {prices && prices['China'] ? `$${prices['China']}` : '$9.85'}
+          {prices && prices['China'] ? `₾${prices['China']}` : '₾9.85'}
         </span></span>
        
       </div>
@@ -63,7 +63,7 @@ export default function Header() {
       <span className="inline-block w-1.5 h-1.5 bg-teal-400 rounded-full animate-pulse mt-[3px]"></span>
       <div className="flex justify-between w-full">
         <span className="font-medium text-[14px]">თურქეთიდან სახმელეთო გზით ტრანსპორტირების საფასური 1კგ: <span className="text-teal-400 font-bold ml-4">
-          {prices && prices['Turkey'] ? `$${prices['Turkey']}` : '$3'}
+          {prices && prices['Turkey'] ? `₾${prices['Turkey']}` : '₾3'}
         </span></span>
         
       </div>

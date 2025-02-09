@@ -52,10 +52,10 @@ export default function LoginForm() {
       >
 
         <LoginOutlined />
-        <span>Login</span>
+        <span>შესვლა</span>
       </Button>
       <Modal
-        title="Login"
+        title="შესვლა"
         visible={visible}
         onOk={handleOk}
         onCancel={handleCancel}

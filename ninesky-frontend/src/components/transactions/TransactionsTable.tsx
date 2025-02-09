@@ -66,7 +66,7 @@ export default function TransactionsTable() {
   const totalPages = Math.ceil(userInfo?.data?.data?.transactions?.length / pageSize);
 
   return (
-    <div className="w-full h-full mt-40 md:ml-0 ml-10">
+    <div className="w-[100vw] h-full mt-40 md:ml-0 flex justify-center ">
       <div className="flex flex-col gap-4">
         <h1 className="text-[1.5rem] text-gray-400">ტრანზაქციები</h1>
 
