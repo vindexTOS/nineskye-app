@@ -62,7 +62,7 @@ export default function Calculator() {
     const calculatedPrice = effectiveWeight * unitPrice;
     setPrice(calculatedPrice.toFixed(2));
   };
-
+//ss
   return (
     <div
       style={{ zIndex: 100 }}
