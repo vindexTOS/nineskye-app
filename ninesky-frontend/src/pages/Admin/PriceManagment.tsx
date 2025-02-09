@@ -21,11 +21,11 @@ export default function PriceManagment() {
   const updatePriceMutation = useMutation({
     mutationFn: (updatedPrices) => UpdatePrice(updatedPrices),
     onSuccess: () => {
-      message.success('Prices updated successfully');
+      message.success('შეცვლა წარმატებით განხორციელდა');
       refetch();  
     },
     onError: (error) => {
-      message.error(error.message || 'An error occurred while updating prices');
+      message.error(error.message || 'დაუდგენელი შეცდომა');
     },
   });
 

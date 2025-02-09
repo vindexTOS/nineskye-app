@@ -32,7 +32,7 @@ export default function AdminLogin() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#2fb9ff] ">
       <Card className="w-full max-w-md p-6 shadow-lg rounded-lg">
-        <Title level={2} className="text-center mb-6">Admin Login</Title>
+        <Title level={2} className="text-center mb-6">ადმინზე შესვლა</Title>
         <Form
           name="login"
         //   initialValues={{ remember: true }}
@@ -57,7 +57,7 @@ export default function AdminLogin() {
           
           <Form.Item>
             <Button type="primary" htmlType="submit" className="w-full">
-              Login
+            შესვლა
             </Button>
           </Form.Item>
         </Form>

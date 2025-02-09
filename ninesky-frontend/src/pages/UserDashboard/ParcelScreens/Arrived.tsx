@@ -107,22 +107,22 @@ const calclatePayAmount = () => {
       key: 'id',
     },
     {
-      title: 'Price',
+      title: 'ფასი',
       dataIndex: 'price',
       key: 'price',
     },
     {
-      title: 'Weight',
+      title: 'წონა',
       dataIndex: 'weight',
       key: 'weight',
     },
     {
-      title: 'Payment Status',
+      title: 'გადახდის სტატუსი',
       dataIndex: 'payment_status',
       key: 'payment_status',
     },
     {
-      title: 'Shipping Status',
+      title: 'გადაზიდვის სტატუსი',
       dataIndex: 'shipping_status',
       key: 'shipping_status',
     },

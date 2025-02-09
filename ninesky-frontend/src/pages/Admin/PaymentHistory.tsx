@@ -22,25 +22,25 @@ export default function PaymentHistory() {
 
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
-    { title: 'User ID', dataIndex: 'userId', key: 'userId' },
-    { title: 'Amount', dataIndex: 'amount', key: 'amount' },
-    { title: 'Currency', dataIndex: 'currency', key: 'currency' },
-    { title: 'Payment ID', dataIndex: 'payment_id', key: 'payment_id' },
-    { title: 'Masked Card', dataIndex: 'masked_card', key: 'masked_card' },
-    { title: 'Date', dataIndex: 'date', key: 'date' },
+    { title: 'მომხმარებლის ID', dataIndex: 'userId', key: 'userId' },
+    { title: 'რაოდენობა', dataIndex: 'amount', key: 'amount' },
+    { title: 'ვალუტა', dataIndex: 'currency', key: 'currency' },
+    { title: 'გადახდის ID', dataIndex: 'payment_id', key: 'payment_id' },
+    { title: 'შენიღბული ბარათი', dataIndex: 'masked_card', key: 'masked_card' },
+    { title: 'გადახდის თარიღი', dataIndex: 'date', key: 'date' },
   ];
 
   return (
     <div className="p-4">
       <div className="flex items-center mb-4 gap-4">
         <Input
-          placeholder="Search by User ID"
+          placeholder="მოძებნეთ მომხარებლის ID-ით"
           value={userId}
           onChange={(e) => setUserId(e.target.value)}
           className="w-1/3"
         />
         <Button type="primary" onClick={handleSearch}>
-          Search
+          ძებნა
         </Button>
       </div>
 

@@ -154,9 +154,8 @@ const Settings: React.FC = () => {
               placeholder="Select an office"
               className="border-blue-300 focus:ring-blue-500 focus:border-blue-500"
             >
-              <Option value="office1">Office 1</Option>
-              <Option value="office2">Office 2</Option>
-              <Option value="office3">Office 3</Option>
+              <Option value="office1">ფონიჭალა  lll  მ/რ, კ13 1</Option>
+            
             </Select>
           </Form.Item>
           <Form.Item

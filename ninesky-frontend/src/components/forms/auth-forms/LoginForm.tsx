@@ -83,7 +83,7 @@ export default function LoginForm() {
               <Input.Password placeholder="პაროლი" prefix={<LockOutlined />} />
             </Form.Item>
             <Button  htmlType="submit"  type="primary" block>
-              Login
+              შესვლა
             </Button>
             <Loading loading={isPending} />
             {isError && <ErrorModal error={error?.message || "შეცდომა"} />}

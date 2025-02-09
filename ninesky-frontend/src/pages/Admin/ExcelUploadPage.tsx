@@ -201,7 +201,7 @@ console.log(flightInfo)
     { title: 'წონა', dataIndex: 'weight', key: 'weight' },
     { title: 'ფასი', dataIndex: 'price', key: 'price' },
     {
-      title: 'Declaration',
+      title: 'დეკლერაცია',
       key: 'declaration',
       render: (_: any, parcel: any) =>
         parcel.declaration ? (
@@ -214,7 +214,7 @@ console.log(flightInfo)
     },
    
     {
-      title: 'Action',
+      title: 'რედაქტირება',
       key: 'action',
       render: (_: any, parcel: any) => (
         <Button type="primary"  onClick={() => handleEdit(parcel)}>
@@ -223,7 +223,7 @@ console.log(flightInfo)
       ),
     },
     {
-      title: 'Delete',
+      title: 'წაშლა',
       key: 'delete',
       render: (_: any, parcel: any) => (
         <Button
@@ -306,8 +306,8 @@ console.log(flightInfo)
             </Form.Item>
             <Form.Item label="Flight From" name="flight_from">
               <Select>
-                <Select.Option value="China">China</Select.Option>
-                <Select.Option value="Turkey">Turkey</Select.Option>
+                <Select.Option value="China">შინეთი</Select.Option>
+                <Select.Option value="Turkey">თურქეთი</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item label="Arrived At" name="arrived_at">
@@ -331,7 +331,7 @@ console.log(flightInfo)
             </Upload.Dragger>
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={createMutation.isPending} className="w-full">
-                Save Parcel
+               შენახვა
               </Button>
             </Form.Item>
           </Form>
@@ -392,47 +392,47 @@ console.log(flightInfo)
             <Form.Item
               label="Flight ID"
               name="flight_id"
-              rules={[{ required: true, message: 'Please enter a Flight ID' }]}
+              rules={[{ required: true, message: 'შეიყვანეთ რეისის იდენტიფიკატორი' }]}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Flight From"
               name="flight_from"
-              rules={[{ required: true, message: 'Please select a Flight From' }]}
+              rules={[{ required: true, message: 'შეიყვანეთ ტრანსპორტის ქვეყანა' }]}
             >
               <Select>
-                <Select.Option value="China">China</Select.Option>
-                <Select.Option value="Turkey">Turkey</Select.Option>
+                <Select.Option value="China">ჩინეთი</Select.Option>
+                <Select.Option value="Turkey">თურქეთი</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item
               label="Arrived At"
               name="arrived_at"
-              rules={[{ required: true, message: 'Please enter Arrival Information' }]}
+              rules={[{ required: true, message: 'შეიყვანეთ ჩამოსვლა' }]}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Tracking ID"
               name="tracking_id"
-              rules={[{ required: true, message: 'Please enter a Tracking ID' }]}
+              rules={[{ required: true, message: 'გთხოვთ შეიყვანეთ თრექინგ იდენტიფიკატორი' }]}
             >
               <Input />
             </Form.Item>
-            <Form.Item label="Weight" name="weight">
+            <Form.Item label="Weight" name="წოპა">
               <Input type="number" />
             </Form.Item>
             <Form.Item
               label="Owner ID"
               name="ownerId"
-              rules={[{ required: true, message: 'Please enter an Owner ID' }]}
+              rules={[{ required: true, message: 'შეიყვანეთ მომხმარებლის იდენტიფიკატორი' }]}
             >
               <Input />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={createMutation.isPending} className="w-full">
-                Save Parcel
+              შენახვა
               </Button>
             </Form.Item>
           </Form>
@@ -490,7 +490,7 @@ console.log(flightInfo)
                 <span className="w-2/3">${selectedParcel.declaration.price}</span>
               </div>
               <div className="flex items-center">
-                <span className="font-semibold w-1/3">Website:</span>
+                <span className="font-semibold w-1/3">ვებსაიტი:</span>
                 <a href={selectedParcel.declaration.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 w-2/3">
                   {selectedParcel.declaration.website}
                 </a>

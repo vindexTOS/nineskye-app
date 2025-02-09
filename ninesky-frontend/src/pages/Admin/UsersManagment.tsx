@@ -138,11 +138,11 @@ const {Text} = Typography
       return UpdateParcels(body);
     },
     onError(err) {
-      message.error("Somehing went wrong")
+      message.error("დაუდგენელი შეცდომა")
       console.log(err);
     },
     onSuccess() {
-      message.success('Parcel updated successfully');
+      message.success('ამანთი განახლდა');
       handleDetales(selectedUserId)
 
        
@@ -177,11 +177,11 @@ const {Text} = Typography
   };
   const columns2 = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
-     { title: 'Price', dataIndex: 'price', key: 'price' },
-    { title: 'Weight', dataIndex: 'weight', key: 'weight' },
-    { title: 'Payment Status', dataIndex: 'payment_status', key: 'payment_status' },
+     { title: 'ფასი', dataIndex: 'price', key: 'price' },
+    { title: 'წონა', dataIndex: 'weight', key: 'weight' },
+    { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status' },
     {
-      title: 'Shipping Status',
+      title: 'გადაზიდვის სტატუსი',
       dataIndex: 'shipping_status',
       key: 'shipping_status',
       render: (text:any, record:any) => (
@@ -194,7 +194,7 @@ const {Text} = Typography
       ),
     },
     {
-      title: 'Declaration',
+      title: 'დეკლარაცია',
       key: 'declaration',
       render: (_: any, parcel: any) =>
         parcel.declaration ? (
@@ -228,17 +228,17 @@ const {Text} = Typography
       ),
     },
     { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'First Name', dataIndex: ['userDetails', 'first_name'], key: 'first_name' },
-    { title: 'Last Name', dataIndex: ['userDetails', 'last_name'], key: 'last_name' },
-    { title: 'Phone Number', dataIndex: ['userDetails', 'phone_number'], key: 'phone_number' },
-    { title: 'Personal Number', dataIndex: ['userDetails', 'personal_number'], key: 'personal_number' },
-    { title: 'Office', dataIndex: ['userDetails', 'office'], key: 'office' },
-    { title: 'City', dataIndex: ['userDetails', 'city'], key: 'city' },
-    { title: 'Address', dataIndex: ['userDetails', 'address'], key: 'address' },
-    { title: 'Access Level', dataIndex: 'accessLevel', key: 'accessLevel' },
+    { title: 'სახელი', dataIndex: ['userDetails', 'first_name'], key: 'first_name' },
+    { title: 'გვარი', dataIndex: ['userDetails', 'last_name'], key: 'last_name' },
+    { title: 'ტელეფონის ნომერი', dataIndex: ['userDetails', 'phone_number'], key: 'phone_number' },
+    { title: 'ID ნომერი', dataIndex: ['userDetails', 'personal_number'], key: 'personal_number' },
+    { title: 'ოფისი', dataIndex: ['userDetails', 'office'], key: 'office' },
+    { title: 'ქალაქი', dataIndex: ['userDetails', 'city'], key: 'city' },
+    { title: 'მისამართი', dataIndex: ['userDetails', 'address'], key: 'address' },
+    { title: 'დაშვების ლეველი', dataIndex: 'accessLevel', key: 'accessLevel' },
  
     {
-      title: 'Detales',
+      title: "დეტალები",
       key: 'detales',
       render: (_: any, parcel: any) => (
         <Button
@@ -252,7 +252,7 @@ const {Text} = Typography
     },
     
     {
-      title: 'Action',
+      title: 'მოქმედება',
       key: 'action',
       render: (_: any, user: any) => (
         <Button type="primary" onClick={() => handleEdit(user)}>
@@ -261,7 +261,7 @@ const {Text} = Typography
       ),
     },
     {
-      title: 'Delete',
+      title: 'წაშლა',
       key: 'delete',
       render: (_: any, parcel: any) => (
         <Button
@@ -280,7 +280,7 @@ const {Text} = Typography
   }
 
   if (isError) {
-    return <div>Error: {error.message || 'An error occurred!'}</div>;
+    return <div>Error: {error.message || 'დაუდგენელი შეცდომა'}</div>;
   }
 
   return (
@@ -315,7 +315,7 @@ const {Text} = Typography
         />
 
 <Modal
-      title="Parcel Details"
+      title="ამანთის დეტალები"
       open={isDetalseModalOpen}
       onCancel={handleCancelDetalesModal}
       footer={null}
@@ -344,32 +344,32 @@ const {Text} = Typography
               <Form.Item label="Email" name="email">
                 <Input />
               </Form.Item>
-              <Form.Item label="Password" name="password">
+              <Form.Item label="პაროლი" name="password">
                 
                 <Input.Password />
               </Form.Item>
-              <Form.Item label="First Name" name="first_name">
+              <Form.Item label="სახელი" name="first_name">
                 <Input />
               </Form.Item>
-              <Form.Item label="Last Name" name="last_name">
+              <Form.Item label="გვარი" name="last_name">
                 <Input />
               </Form.Item>
-              <Form.Item label="Phone Number" name="phone_number">
+              <Form.Item label="ტელეფონი" name="phone_number">
                 <Input />
               </Form.Item>
-              <Form.Item label="Personal Number" name="personal_number">
+              <Form.Item label="პირადი ნომერი" name="personal_number">
                 <Input />
               </Form.Item>
-              <Form.Item label="Office" name="office">
+              <Form.Item label="ოფისი" name="office">
                 <Input />
               </Form.Item>
-              <Form.Item label="City" name="city">
+              <Form.Item label="ქალაქი" name="city">
                 <Input />
               </Form.Item>
-              <Form.Item label="Address" name="address">
+              <Form.Item label="მისამართი" name="address">
                 <Input />
               </Form.Item>
-              <Form.Item label="Access Level" name="accessLevel">
+              <Form.Item label="დაშვების დონე" name="accessLevel">
                 <Input type="number" />
               </Form.Item>
               <Form.Item className="hidden" label="id" name="id">
@@ -386,7 +386,7 @@ const {Text} = Typography
         {/*  */}
   {/* delete modal */}
   <Modal
-      title="Delete Declaration"
+      title="დეკლერაცის წაშლა"
       open={isDeleteModalOpen}
       onCancel={() => setIsDeleteModalOpen(false)}
       footer={null} // Custom footer instead of default buttons
@@ -416,7 +416,7 @@ const {Text} = Typography
     </Modal>
         {/*  */}
         <Modal
-          title="Declaration Details"
+          title="დეკლერაცის დეტალები"
           open={isDelecrationModalOpen}
           onCancel={() => setIsDeclerationModalOpen(false)}
           footer={null}
@@ -464,7 +464,7 @@ const {Text} = Typography
               )}
             </div>
           ) : (
-            <p className="text-center text-gray-500">No Declaration Available</p>
+            <p className="text-center text-gray-500">დეკლერაცია ვერ მოინახა</p>
           )}
         </Modal>
       </div>
