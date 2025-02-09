@@ -1,4 +1,4 @@
-import { BadGatewayException, ConflictException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, ConflictException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 import * as moment from "moment"
 import * as crypto from "crypto";
@@ -26,61 +26,81 @@ export class TransactionService {
 
 
 
-  async depositeBalance(body) {
-
-
-
+  async depositeBalance(body: any) {
     try {
-
-      const userId = body.order_id.split(";")[0].split(":")[1]
-      console.log(body.order_status)
-
-      if (body.order_status != 'approved') {
-        console.log("Order has not been approved")
-
-        throw new ConflictException("Payment failed")
+      // Extract userId from order_id; expected format:
+      // "userId:SKY-205570;firstName:...;lastName:...;dateTime:..."
+      const userId = body.order_id.split(";")[0].split(":")[1];
+      if (!userId) {
+        throw new BadRequestException('Invalid order_id format');
       }
-
-
-      const user = await this.entityManager.findOne(User,{
-        where: {
-          id: userId
+  
+      // Check payment approval status
+      if (body.order_status !== 'approved') {
+        console.log("Order has not been approved");
+        throw new ConflictException("Payment failed");
+      }
+  
+      // Run all updates inside a transaction to ensure atomicity
+      return await this.entityManager.transaction(async (manager) => {
+        // Check if the payment has already been recorded
+        const existingPayment = await manager.findOne(PaymentHistory, {
+          where: {
+       
+            payment_id: body.payment_id,
+            
+          },
+        });
+  
+        if (existingPayment) {
+          throw new ConflictException('Payment already recorded.');
         }
-      })
-
-      if (!user) {
-        throw new NotFoundException("user does not not existed");
-      }
-      const newTransaction = this.entityManager.create(Transaction,{
-        user,
-        date: new Date,
-        amount: body.amount / 100,
-        transactionType: TransactionType.DEPOSIT
-
-      })
-      const paymentHistory = await this.entityManager.create(PaymentHistory,{
-        amount: body.amount / 100,
-        payment_id: body.payment_id,
-        currency: body.currency,
-        masked_card: body.masked_card,
-        maskresponse_signature_stringed_card: body.response_signature_string,
-        userId: userId,
-        user,
-      })
-
-
-    
-     await this.entityManager.save(PaymentHistory,paymentHistory)
-      return await this.entityManager.save(Transaction,newTransaction)
-
-
+  
+        // Find the user
+        const user = await manager.findOne(User, { where: { id: userId } });
+        if (!user) {
+          throw new NotFoundException("User does not exist");
+        }
+  
+        // Calculate deposit amount (assuming body.amount is in cents)
+        const depositAmount = body.amount / 100;
+  
+        // Create a new deposit transaction record
+        const newTransaction = manager.create(Transaction, {
+          user,
+          date: new Date(),
+          amount: depositAmount,
+          transactionType: TransactionType.DEPOSIT,
+        });
+  
+        // Create a new payment history record
+        const paymentHistory = manager.create(PaymentHistory, {
+          amount: depositAmount,
+          payment_id: body.payment_id,
+          currency: body.currency,
+          masked_card: body.masked_card,
+          maskresponse_signature_stringed_card: body.response_signature_string, // adjust field name as needed
+          userId: userId,
+          user,
+        });
+  
+        // Increment the user's balance
+        user.balance = Number(user.balance) + depositAmount;
+  
+        // Save all changes within the transaction
+        await manager.save(PaymentHistory, paymentHistory);
+        await manager.save(Transaction, newTransaction);
+        await manager.save(User, user);
+  
+        // Return the new transaction (or any other result as desired)
+        return newTransaction;
+      });
     } catch (error) {
-      console.log(error)
-      throw new ConflictException("Payment failed")
+      console.log(error);
+      throw new ConflictException("Payment failed");
     }
   }
-
-
+ 
 
   public async GetRedirectUrlAsync(paymentReq: PaymentRequestDto): Promise<any> {
     console.log(paymentReq)
@@ -110,7 +130,8 @@ export class TransactionService {
         "server_callback_url": "https://ninesky.ge/backend/api/transaction/deposite",
         "order_id": `userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecound}`,
         "currency": paymentReq.currency,
-        "merchant_id": 1549901,
+        // "merchant_id": 1549901,
+        "merchant_id": process.env.PAYMENT_VENDOR_CODE,
         "order_desc": paymentReq.userId,
         "amount": paymentReq.amount  ,
         "signature": signature
@@ -119,7 +140,7 @@ export class TransactionService {
   }
   private async buildSignature(paymentReq: any, unixSecond: number): Promise<string> {
     // Concatenate the parameters in the correct order // 
-    return `test|${paymentReq.amount}|${paymentReq.currency}|1549901|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/transaction/deposite`;
+    return `test|${paymentReq.amount}|${paymentReq.currency}|${process.env.PAYMENT_VENDOR_CODE}|${paymentReq.userId}|userId:${paymentReq.userId};firstName:${paymentReq.customerFirstName};lastName:${paymentReq.customerLastName};dateTime:${unixSecond}|https://ninesky.ge/backend/api/transaction/deposite`;
   }
 
   public async hashData(data: string): Promise<string> {

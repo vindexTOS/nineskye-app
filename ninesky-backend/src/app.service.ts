@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+ import { Address } from "libs/entities/address.entety";
 import { Price } from "libs/entities/prices.entity";
 import { EntityManager, Repository } from "typeorm";
 
@@ -21,4 +21,14 @@ export class AppService {
       throw new InternalServerErrorException(error)
     }
   }
+
+    async findAllAddress(): Promise<Address[]> {
+      try {
+        return  await this.entityManager.find(Address);
+  
+      } catch (error) {
+        console.log(error)
+        throw new Error(error)
+      }
+    }
 }

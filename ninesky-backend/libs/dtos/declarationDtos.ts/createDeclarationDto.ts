@@ -23,5 +23,5 @@ export class CreateDeclarationDto {
   comment?: string;
 
   @IsOptional()
-  invoice_Pdf?: Buffer;  // This will accept a file buffer
+  invoice_Pdf?: Buffer | null // This will accept a file buffer
 }

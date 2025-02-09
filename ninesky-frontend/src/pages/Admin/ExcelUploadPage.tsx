@@ -48,9 +48,10 @@ const {Text} = Typography
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(firstSheet);
       const updatedData = jsonData.map((item: any) => ({
-        ...item,
-        tracking_id: String(item.tracking_id),
-        weight:Number(item.weight)
+        
+        tracking_id:String(Object.values(item)[0]),
+        ownerId: Object.values(item)[1],
+        weight: Object.values(item)[2]
       }));
       setData(updatedData);
     };
@@ -67,6 +68,7 @@ const {Text} = Typography
         },
         parcels: data,
       };
+      console.log(uploadData)
       createMutation.mutate(uploadData);
       handleCancel();
     } else {
@@ -93,8 +95,8 @@ const {Text} = Typography
       return CreateParcles(body);
     },
     onError(err) {
-      console.log(err);
-      message.error("Something went wrong")
+      console.log(err.message);
+      message.error(err.message)
     },
     onSuccess() {
       message.success('Parcels created successfully');
@@ -150,10 +152,10 @@ const {Text} = Typography
     // Create the flight information for a single parcel
     const flightInfo = {
       flight_id: values.flight_id,
-      flight_from: values.flight_from.toLowerCase(),
+      flight_from: values.flight_from,
       arrived_at: values.arrived_at,
     };
-
+console.log(flightInfo)
     const uploadData = {
       flight_info: flightInfo,
       parcels: [newParcel],
@@ -173,7 +175,7 @@ const {Text} = Typography
   };
   const handleUpdate = (values: any) => {
     const convertedValues = {
-      id: selectedParcel.id, // Keeping the original parcel ID
+      tracking_id: selectedParcel.id, // Keeping the original parcel ID
       ownerId: selectedParcel.owner?.id, // Keeping the original owner ID
       payment_status: values.payment_status,
       price: values.price ? Number(values.price) : undefined,
@@ -289,68 +291,9 @@ const {Text} = Typography
           className="text-center"
         />
 
-<Modal
-  title="Edit Parcel"
-  open={isEditModalOpen}
-  onCancel={handleEditCancel}
-  footer={null}
->
-  <Form form={editForm} layout="vertical" onFinish={handleUpdate}>
-    <Form.Item
-      label="Parcel ID"
-      name="id"
-      rules={[{ required: true, message: 'ჩაწერეთ ამანათის ID' }]}
-    >
-      <Input readOnly />
-    </Form.Item>
-    <Form.Item
-      label="Owner ID"
-      name="ownerId"
-      rules={[{ required: true, message: 'ჩაწერეთ მომხარებლის ID' }]}
-    >
-      <Input readOnly />
-    </Form.Item>
-    <Form.Item
-      label="Payment Status"
-      name="payment_status"
-      rules={[{ required: true, message: 'ჩაწერეთ გადახდის სტატუსი' }]}
-    >
-      <Select>
-        <Select.Option value="Unpaid">გადახდილი</Select.Option>
-        <Select.Option value="Paid">გადაუხდელი</Select.Option>
-      </Select>
-    </Form.Item>
-    <Form.Item
-      label="Price"
-      name="price"
-      rules={[{ required: true, message: 'გთხოვთ ჩაწერეთ ფასი' }]}
-    >
-      <Input type="number" />
-    </Form.Item>
-    <Form.Item
-      label="Shipping Status"
-      name="shipping_status"
-      rules={[{ required: true, message: 'Please enter a Shipping Status' }]}
-    >
-      <Input />
-    </Form.Item>
-    <Form.Item
-      label="Weight"
-      name="weight"
-      rules={[{ required: true, message: 'გთხოვთ ჩაწერე წონა' }]}
-    >
-      <Input type="number" />
-    </Form.Item>
-    <Form.Item>
-      <Button type="primary" htmlType="submit" loading={updateMutation.isPending} className="w-full">
-         ამანათის განახელბა
-      </Button>
-    </Form.Item>
-  </Form>
-</Modal>
+ 
 
-{/* 
- */}
+ 
          <Modal
           title={selectedParcel ? 'Edit Parcel' : 'Add Parcel Manually'}
           open={isModalOpen}
@@ -363,7 +306,7 @@ const {Text} = Typography
             </Form.Item>
             <Form.Item label="Flight From" name="flight_from">
               <Select>
-                <Select.Option value="china">China</Select.Option>
+                <Select.Option value="China">China</Select.Option>
                 <Select.Option value="Turkey">Turkey</Select.Option>
               </Select>
             </Form.Item>
@@ -401,47 +344,11 @@ const {Text} = Typography
           footer={null}
         >
           <Form form={editForm} layout="vertical" onFinish={handleUpdate}>
-            {/* <Form.Item
-              label="Flight ID"
-              name="flight_id"
-              rules={[{ required: true, message: 'Please enter a Flight ID' }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label="Flight From"
-              name="flight_from"
-              rules={[{ required: true, message: 'Please select a Flight From' }]}
-            >
-              <Select>
-                <Select.Option value="china">China</Select.Option>
-                <Select.Option value="turkey">Turkey</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item
-              label="Arrived At"
-              name="arrived_at"
-              rules={[{ required: true, message: 'Please enter Arrival Information' }]}
-            >
-              <Input />
-            </Form.Item> */}
-            <Form.Item
-              label="Tracking ID"
-              name="id"
-              rules={[{ required: true, message: 'Please enter a Tracking ID' }]}
-            >
-              <Input />
-            </Form.Item>
+            
             <Form.Item label="Weight" name="weight">
               <Input type="number" />
             </Form.Item>
-            <Form.Item
-              label="Owner ID"
-              name="ownerId"
-              rules={[{ required: true, message: 'Please enter an Owner ID' }]}
-            >
-              <Input />
-            </Form.Item>
+   
             <Form.Item label="Price" name="price">
               <Input type="number" />
             </Form.Item>
@@ -450,7 +357,12 @@ const {Text} = Typography
               name="shipping_status"
               rules={[{ required: true, message: 'Please enter a Shipping Status' }]}
             >
-              <Input />
+                 <Select>
+                <Select.Option value="Brought">საწყობში</Select.Option>
+                <Select.Option value="Shipped">გამოგზავნილი</Select.Option>
+                <Select.Option value="Arrived">ჩამოსული</Select.Option>
+                <Select.Option value="Taken">გატანილი</Select.Option>
+              </Select>
             </Form.Item>
             <Form.Item
               label="Payment Status"
@@ -458,14 +370,14 @@ const {Text} = Typography
               rules={[{ required: true, message: 'Please enter a Payment Status' }]}
             >
               <Select>
-                <Select.Option value="PAID">PAID</Select.Option>
-                <Select.Option value="UNPAID">UNPAID</Select.Option>
+                <Select.Option value="Paid">გადახდილი</Select.Option>
+                <Select.Option value="Unpaid">გადაუხდელი</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={updateMutation.isPending} className="w-full">
-                Update Parcel
-              </Button>
+              ამანათის განახლება
+                         </Button>
             </Form.Item>
           </Form>
         </Modal>
@@ -479,7 +391,7 @@ const {Text} = Typography
           <Form form={singleParcelForm} layout="vertical" onFinish={handleSingleParcelFinish}>
             <Form.Item
               label="Flight ID"
-              name="id"
+              name="flight_id"
               rules={[{ required: true, message: 'Please enter a Flight ID' }]}
             >
               <Input />
@@ -490,8 +402,8 @@ const {Text} = Typography
               rules={[{ required: true, message: 'Please select a Flight From' }]}
             >
               <Select>
-                <Select.Option value="china">China</Select.Option>
-                <Select.Option value="turkey">Turkey</Select.Option>
+                <Select.Option value="China">China</Select.Option>
+                <Select.Option value="Turkey">Turkey</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item

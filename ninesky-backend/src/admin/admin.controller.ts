@@ -4,6 +4,7 @@ import { UpdateUserDto } from 'libs/dtos/UserDto.ts/update-user.dto';
 import { UploadParcelsDto } from 'libs/dtos/parcelDtos.ts/UploadParcelsDto';
 import { UpdateParcelDto } from 'libs/dtos/parcelDtos.ts/update-parcel.dto';
 import { JwtAdminGuard } from 'libs/guards/jwt.Admin.Guard';
+import { CreateAddressDto } from 'libs/dtos/addressDto/addressDto';
 
 
 @UseGuards(JwtAdminGuard)
@@ -78,4 +79,28 @@ export class AdminController {
   ) {
     return this.adminService.transactionHistory(page, limit, userId, sort);
   }
+
+
+  // @Post("create-address")
+  // async createAddress(
+  //   @Body() createAddressDto: CreateAddressDto,
+  // )  {
+  //   return await this.adminService.createAddress(createAddressDto);
+  // }
+
+  // @Post('address/:id')
+  // async updateAddress(
+  //   @Param('id') id: string,
+  //   @Body() updateAddressDto: CreateAddressDto,
+  // )  {
+  //   return await this.adminService.updateAddress(+id, updateAddressDto);
+  // }
+
+
+  
+  // @Get("get-all-address")
+  // async getAddresses()  {
+  //   return await this.adminService.findAllAddress();
+  // }
+
 }

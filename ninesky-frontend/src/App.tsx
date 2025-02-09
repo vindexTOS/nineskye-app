@@ -1,6 +1,6 @@
-import React, { Children } from 'react';
+ 
 import { Routes, Route, Navigate } from 'react-router-dom';
-import NavBar from './components/navbar/NonAuthNavBar';
+ 
 import LayOut from './LayOut';
 import EnteryPage from './pages/Entery/EnteryPage';
 import UserMain from './pages/UserDashboard/UserMain';
@@ -20,7 +20,7 @@ import ExcelUploadPage from './pages/Admin/ExcelUploadPage';
 import AdminAuthGuard from './Guards/AdminGuard';
 import UsersManagment from './pages/Admin/UsersManagment';
 import PriceManagment from './pages/Admin/PriceManagment';
-import Terms from './pages/TermsAndServices/Terms';
+ 
 import PaymentHistory from './pages/Admin/PaymentHistory';
 import TransactionHistory from './pages/Admin/TransactionHistory';
 
@@ -59,6 +59,7 @@ function App() {
   <Route path="price-managment" element={<AdminAuthGuard><PriceManagment /></AdminAuthGuard>} />
   <Route path="payment-history" element={<AdminAuthGuard><PaymentHistory /></AdminAuthGuard>} />
   <Route path="transaction-history" element={<AdminAuthGuard><TransactionHistory /></AdminAuthGuard>} />
+ 
 </Route>
 {/*  */}
 

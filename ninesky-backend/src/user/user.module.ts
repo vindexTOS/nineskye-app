@@ -15,7 +15,7 @@ import { PaymentHistory } from 'libs/entities/payment.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([User, Parcel, Declaration, Transaction, PaymentHistory]), HttpModule],
   controllers: [UserController],
-  providers: [UserService, JwtAuthGuard , JwtStrategy , ],
+  providers: [UserService, JwtAuthGuard , JwtStrategy ],
   exports: [UserService ,]
 })
 export class UserModule { }

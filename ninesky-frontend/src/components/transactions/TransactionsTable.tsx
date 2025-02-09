@@ -2,35 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { GetUserInfo } from '../../API/User/GetRequests';
- 
+
 export default function TransactionsTable() {
+  const userInfo = useQuery({
+    queryKey: ['get-user-info'],
+    queryFn: () => GetUserInfo(),
+  });
 
-  const userInfo = useQuery({queryKey:['get-user-info'],
-    queryFn:()=>GetUserInfo()
-   
-    })
-
-  // Total number of transactions
- 
-  const pageSize = 10; // Number of transactions per page
+  const pageSize = 10;  
   const [currentPage, setCurrentPage] = useState(1);
- 
- 
 
-  // Sample data for the table
-  // const data = Array.from({ length: totalTransactions }, (_, index) => ({
-  //   key: index + 1,
-  //   transactionId: `T00${index + 1}`,
-  //   amount: `$${(Math.random() * 200).toFixed(2)}`,
-  //   date: `2024-01-${String(index + 1).padStart(2, '0')}`,
-  // }));
+ 
+  const formatDate = (isoDate: string) => {
+    return new Date(isoDate).toLocaleString('ka-GE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short',
+    });
+  };
 
   // Calculate the current page data
   const startIndex = (currentPage - 1) * pageSize;
-  const currentData = userInfo?.data?.data?.transactions.slice(startIndex, startIndex + pageSize);
+  const currentData = userInfo?.data?.data?.transactions
+    ?.slice(startIndex, startIndex + pageSize)
+    ?.map((transaction: any) => ({
+      ...transaction,
+      amount:`₾${transaction.amount}`,
+      date: formatDate(transaction.date).split("GMT+4")[0], // Format the date here
+    }));
 
   const columns = [
- 
     {
       title: 'თანხა',
       dataIndex: 'amount',
@@ -46,26 +51,15 @@ export default function TransactionsTable() {
       dataIndex: 'date',
       key: 'date',
     },
-    {
-      title: 'id',
-      dataIndex: 'id',
-      key: 'id',
-    },
     // {
-    //   title: 'ბარათი',
-    //   dataIndex: 'masked_card',
-    //   key: 'masked_card',
+    //   title: 'id',
+    //   dataIndex: 'id',
+    //   key: 'id',
     // },
-    // {
-    //   title: 'payment_id',
-    //   dataIndex: 'payment_id',
-    //   key: 'payment_id',
-    // },
-    
   ];
 
   // Handle page change
-  const handlePageChange = (newPage:number) => {
+  const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
 
@@ -75,24 +69,20 @@ export default function TransactionsTable() {
     <div className="w-full h-full mt-40 md:ml-0 ml-10">
       <div className="flex flex-col gap-4">
         <h1 className="text-[1.5rem] text-gray-400">ტრანზაქციები</h1>
-        
- 
+
         <Table
           dataSource={currentData}
           columns={columns}
           pagination={false}
-          locale={{ emptyText: 'ტრანზაქციები არ მოიძებნა' }}  
+          locale={{ emptyText: 'ტრანზაქციები არ მოიძებნა' }}
           className="mt-4"
         />
 
-  
         <div className="flex justify-between items-center mt-4">
-          <Button
-            disabled={currentPage === 1}
-            onClick={() => handlePageChange(currentPage - 1)}
-          >
-          წინა </Button>
-          <span>{`გვერდი ${currentPage} -  ${totalPages}`}</span>
+          <Button disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>
+            წინა
+          </Button>
+          <span>{`გვერდი ${currentPage} - ${totalPages}`}</span>
           <Button
             disabled={currentPage === totalPages}
             onClick={() => handlePageChange(currentPage + 1)}

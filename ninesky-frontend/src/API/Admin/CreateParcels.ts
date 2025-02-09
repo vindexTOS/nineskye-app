@@ -23,7 +23,7 @@ export const CreateParcles = async (body: any) => {
 
 export const UpdateParcels = async ( body:any)=>{
     console.log(body)
-   const id  = body.id
+   const id  = body.tracking_id
    delete body.declaration;
  
     try {

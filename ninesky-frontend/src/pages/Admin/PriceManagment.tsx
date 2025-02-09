@@ -54,21 +54,28 @@ export default function PriceManagment() {
     <div className="p-5">
       <h2 className="text-2xl font-semibold mb-4">ფასის მენეჯმენტი</h2>
       <Card className="max-w-lg mx-auto p-6 shadow-md rounded-lg">
-        {prices && Object.keys(prices).length > 0 && (
-          Object.entries(prices).map(([country, price]: any) => (
-            <div key={country}>
-              <div className="flex justify-between items-center py-2">
-                <span className="font-semibold">{country}</span>
-                <Input
-                  value={price}
-                  onChange={(e) => handleInputChange(country, e.target.value)}
-                  style={{ width: '100px' }}
-                />
-              </div>
-              <Divider className="my-1" />
-            </div>
-          ))
-        )}
+      {prices && Object.keys(prices).length > 0 && (
+  Object.entries(prices)
+    // Filter out the key "id"
+    .filter(([key]) => key !== 'id')
+    .map(([country, price]:any) => (
+      <div key={country}>
+        <div className="flex justify-between items-center py-2">
+          <span className="font-semibold">{country}</span>
+          <div className="flex items-center">
+            <Input
+              value={price}
+              onChange={(e) => handleInputChange(country, e.target.value)}
+              style={{ width: '100px' }}
+            />
+            {/* Label added next to the Input */}
+            <span className="ml-2">ლარი</span>
+          </div>
+        </div>
+        <Divider className="my-1" />
+      </div>
+    ))
+)}
         <Button
           type="primary"
           className="mt-4 w-full"

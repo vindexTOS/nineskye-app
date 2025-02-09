@@ -8,8 +8,13 @@ export class AppController {
   constructor(private readonly appService: AppService) { }
 
   @Get('get-prices')
-  getPrices() {
-    return this.appService.getPrices();
+  async getPrices() {
+    return await this.appService.getPrices();
+  }
+
+  @Get("addresses")
+ async getAddress(){
+     return await this.appService.findAllAddress()
   }
 
 }

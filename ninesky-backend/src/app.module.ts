@@ -15,6 +15,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PaymentHistory } from 'libs/entities/payment.entity';
 import { TransactionModule } from './transaction/transaction.module';
+import { Address } from 'libs/entities/address.entety';
 
 @Module({
   controllers: [AppController],
@@ -38,7 +39,7 @@ import { TransactionModule } from './transaction/transaction.module';
         username: configService.get<string>('MYSQL_USER'), // Correct environment variable
         password: configService.get<string>('MYSQL_PASSWORD'), // Correct environment variable
         database: configService.get<string>('MYSQL_DB'), // Correct environment variable
-        entities: [User, Parcel, Declaration, Transaction, UserDetails, Flight,PaymentHistory, Price],
+        entities: [User, Parcel, Declaration, Transaction, UserDetails, Flight,PaymentHistory, Price, Address],
         synchronize: true,
         migrationsRun: true,
         logging: false,

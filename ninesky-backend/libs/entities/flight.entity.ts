@@ -1,11 +1,11 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import { Parcel } from "./parcel.entity";
 import { FlightFrom } from "libs/enums/flightsFrom.enum";
 
 @Entity()
 export class Flight {
-    @PrimaryGeneratedColumn('uuid') // or use @PrimaryGeneratedColumn() for auto-incrementing numbers
-    id: string; // Change to `number` if using auto-increment
+    @PrimaryGeneratedColumn("increment")// or use @PrimaryGeneratedColumn() for auto-incrementing numbers
+    id: number; // Change to `number` if using auto-increment
 
     @Column({ unique: true })
     flight_id: string;
@@ -19,6 +19,6 @@ export class Flight {
     })
     flight_from: FlightFrom;
 
-    @Column()
-    arrived_at: string;
+    @CreateDateColumn({ type: 'timestamp' })
+    created_at: Date;
 }

@@ -287,7 +287,7 @@ const {Text} = Typography
     <div className="p-10 min-h-screen">
       <div className="mx-auto bg-white rounded-lg p-8">
         <Input.Search
-          placeholder="Search users"
+          placeholder="პირადი ნომრით ძებნა"
           onSearch={setSearchTerm}
           enterButton
           className="mb-6"
@@ -433,7 +433,7 @@ const {Text} = Typography
               </div>
               <div className="flex items-center">
                 <span className="font-semibold w-1/3">ფასი:</span>
-                <span className="w-2/3">${selectedParcel.declaration.price}</span>
+                <span className="w-2/3">₾{selectedParcel.declaration.price}</span>
               </div>
               <div className="flex items-center">
                 <span className="font-semibold w-1/3">Website:</span>

@@ -29,8 +29,9 @@ export class Declaration {
   comment: string;
 
   @Column({
-    type: 'blob',  // Use 'blob' for binary data in MySQL
-    nullable: true, // Add `nullable` if this field is optional
+    type: 'longblob',   
+    nullable: true,
   })
   invoice_Pdf: Buffer;
+  
 }

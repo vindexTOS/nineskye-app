@@ -18,7 +18,7 @@ export default function Arrived() {
  const [selectedRowPrice,setSelectedRowPrice] = useState<number>(0)
 
   const handleSelectedRowPrice = (rb:any)=>{
-        // console.log(rb)
+    
 
         let totalPrice = rb.map((val:any)=> Number(val.price)).reduce((a:number,b:number)=> a + b)
     setSelectedRowPrice(totalPrice)
@@ -50,7 +50,7 @@ export default function Arrived() {
   });
   useEffect(() => {
     if (data && data?.data) {
- 
+      console.log(data?.data)
       let newData = data.data.parcels.filter((val: any) => val.shipping_status == "Arrived")
       setStorageData(newData)
     }
@@ -60,7 +60,12 @@ export default function Arrived() {
 const mutation  = useMutation({
 mutationFn:(body)=>{
    return PayForParcel (body)
-}   
+
+}   ,
+onSuccess(){
+ window.location.reload()
+
+}
 }) 
 
 const payMoney =async ()=>{
@@ -71,7 +76,7 @@ const payMoney =async ()=>{
 
 const calclatePayAmount = () => {
   const unpaidItems = StorageData.filter((val: any) => val.payment_status === 'Unpaid');
-
+ 
    if (unpaidItems.length > 0) {
     const amountPay: number = unpaidItems
       .map((val: any) => Number(val.price))
@@ -85,7 +90,7 @@ const calclatePayAmount = () => {
  };
 
   useEffect(() => {
-    // console.log(StorageData)
+ 
     if (StorageData.length > 0) {
       calclatePayAmount()
     }
@@ -141,7 +146,7 @@ const calclatePayAmount = () => {
     <div>
       <div className="flex items-center flex-row gap-5">
         <h1>
-          გადასახდელი თანხა ჯამური <span className="text-green-500">${payAmount}</span>
+          გადასახდელი თანხა ჯამური <span className="text-green-500">₾{payAmount}</span>
         </h1>
         <Button onClick={() => setOpenModal(true)}>გადახდა</Button>
         <Modal
