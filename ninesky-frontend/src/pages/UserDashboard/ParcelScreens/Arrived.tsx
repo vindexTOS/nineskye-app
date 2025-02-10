@@ -102,7 +102,7 @@ const calclatePayAmount = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: 'Tracking ID',
       dataIndex: 'id',
       key: 'id',
     },

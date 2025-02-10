@@ -197,7 +197,7 @@ console.log(flightInfo)
 //  console.log(parcelsData?.parcels)
  },[parcelsData?.parcels])
   const columns = [
-    { title: 'id', dataIndex: 'id', key: 'id' },
+    { title: 'tracking ID', dataIndex: 'id', key: 'id' },
     // { title: 'Tracking ID', dataIndex: 'tracking_id', key: 'id' },
     {
       title: 'გადაზიდვის სტატუსი',
@@ -323,7 +323,7 @@ console.log(flightInfo)
             </Form.Item>
             <Form.Item label="ქვეყანა" name="flight_from">
               <Select>
-                <Select.Option value="China">შინეთი</Select.Option>
+                <Select.Option value="China">ჩინეთი</Select.Option>
                 <Select.Option value="Turkey">თურქეთი</Select.Option>
               </Select>
             </Form.Item>
