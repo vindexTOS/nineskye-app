@@ -18,23 +18,54 @@ export class MailerService {
     })
   }
 
-  async sendActivationEmail(link : string , email : string): Promise<void> {
-    const mailOptions = {
-        from: process.env.EMAIL_FROM, // sender address
-        to: email, // list of receivers
-        subject: 'Activate your account', // Subject line
-        html: `<p>Please click <a href="${process.env.BASE_URL}/${link}">here</a> to activate your account.</p>`
+  async sendActivationEmail(token : string , email : string): Promise<void> {
+    console.log("შემოსვლა სენდეში")
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_FROM,  
+        to: email, 
+        subject: 'ანგარიშის გააქტიურება', 
+        html: `<p> ანგარიშის გასააქტიურებლად გადადით <a href="${process.env.REMOTE_ADDRESS}/verify/${token}">ბმულზე</a>.</p>`
     };
 
-    const data = this.transporter.sendMail(mailOptions, (error, info) => {
+ this.transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return 'Error sending email:'
+          console.log('Error sending email:') 
         } else {
-            return 'Activation email sent:'
+             console.log('Activation email sent:') 
         }
     });
-
-    console.log(data)
+  
+    } catch (error) {
+      console.log("500 errori")
+      throw new Error(error)
+    }
+    
+  
+ 
 }
 
+async sendPasswordRecoverylink(token : string , email : string): Promise<void> {
+  console.log("შემოსვლა სენდეში")
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,  
+      to: email, 
+      subject: 'პარილის აღგდგენა', 
+      html: `<p> პაროლის აღსაგდგენად გადადით <a href="${process.env.REMOTE_ADDRESS}/recovery/${token}"> ბმულზე</a>.</p>`
+  };
+
+this.transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Error sending email:') 
+      } else {
+           console.log('Activation email sent:') 
+      }
+  });
+
+  } catch (error) {
+    console.log("500 errori")
+    throw new Error(error)
+  }
+}
 }

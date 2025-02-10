@@ -33,7 +33,7 @@ export default function AuthNavBar() {
     }
   }, [decodedUser]);
 
-  if (userInfo?.email && decodedUser.accessLevel <= 0) {
+  if (userInfo?.email && decodedUser.accessLevel == 1) {
     return (
       <nav className="fixed top-0 left-0 w-full bg-[#2fb9ff] px-4 py-3 md:py-4 z-50 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

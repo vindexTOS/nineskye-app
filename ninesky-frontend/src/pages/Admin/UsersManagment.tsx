@@ -5,8 +5,9 @@ import { GetAllUsers } from '../../API/User/GetRequests';
 import Loading from '../../components/status/Loading';
  import { UpdateUserInfo } from '../../API/Admin/UpdateUser';
 import { GetParcels, UpdateParcels } from '../../API/Admin/CreateParcels';
-import {ShippingStatus} from "../../types/shipping_status"
+import {ShippingStatus, shippingStatusTranslation} from "../../types/shipping_status"
 import { DeleteUser } from '../../API/Admin/DeleteRequests';
+import { paymentStatusTranslation } from '../../types/payment';
 export default function UsersManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [modalCurrentPage, setModalCurrentPage] = useState(1);
@@ -23,7 +24,7 @@ export default function UsersManagement() {
 const {Text} = Typography
 
   const shippingStatusOptions = Object.values(ShippingStatus).map((status) => ({
-    label: status.charAt(0).toUpperCase() + status.slice(1), // Capitalize the label
+    label: status.charAt(0).toUpperCase() + status.slice(1), 
     value: status,
   }));
 
@@ -179,19 +180,23 @@ const {Text} = Typography
     { title: 'ID', dataIndex: 'id', key: 'id' },
      { title: 'ფასი', dataIndex: 'price', key: 'price' },
     { title: 'წონა', dataIndex: 'weight', key: 'weight' },
-    { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status' },
+    { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status',
+
+           render: (text: string) => paymentStatusTranslation[text?.trim()] || text || 'უცნობი',
+     },
     {
       title: 'გადაზიდვის სტატუსი',
       dataIndex: 'shipping_status',
       key: 'shipping_status',
-      render: (text:any, record:any) => (
-        <Select
-          value={record.shipping_status}
-          onChange={(value) => handleStatusChange(record.id, value)}
-          options={shippingStatusOptions}
-          style={{ width: 120 }}
-        />
-      ),
+          render: (text:string) => shippingStatusTranslation[text] || text,  
+      // render: (text:any, record:any) => (
+      //   <Select
+      //     value={record.shipping_status}
+      //     onChange={(value) => handleStatusChange(record.id, value)}
+      //     options={shippingStatusOptions}
+      //     style={{ width: 120 }}
+      //   />
+      // ),
     },
     {
       title: 'დეკლარაცია',
@@ -221,7 +226,7 @@ const {Text} = Typography
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          maxWidth: '120px', // Adjust the width as needed
+          maxWidth: '120px', 
         }}>
           {id}
         </div>
@@ -246,7 +251,7 @@ const {Text} = Typography
           style={{ backgroundColor: 'green', borderColor: 'green', color: 'white' }}
           onClick={() => handleDetales(parcel.id)}
         >
-          დეტალურად
+         ამანათები
         </Button>
       ),
     },

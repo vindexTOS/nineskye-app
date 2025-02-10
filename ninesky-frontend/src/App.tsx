@@ -23,6 +23,8 @@ import PriceManagment from './pages/Admin/PriceManagment';
  
 import PaymentHistory from './pages/Admin/PaymentHistory';
 import TransactionHistory from './pages/Admin/TransactionHistory';
+import VerifyPage from './pages/Verification/VerifyPage';
+import PasswordRecovery from './pages/PasswordRecovery/PasswordRecovery';
 
 
 const NotFound = () => <h1 className='h-[100vh] flex items-center  justify-center w-[100%] '>404 - Not Found</h1>;
@@ -62,7 +64,8 @@ function App() {
  
 </Route>
 {/*  */}
-
+<Route path="verify/:token" element={<VerifyPage />} />
+<Route path="recovery/:token" element={<PasswordRecovery />} />
         <Route path="*" element={<NotFound />} />
         {/* <Route path="/terms"  element={<Terms/>}    />  */}
       </Routes>

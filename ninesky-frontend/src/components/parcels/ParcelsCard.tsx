@@ -143,13 +143,14 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
             <span className="font-medium mr-1">რეისი:</span>
             <span>{ parcel.flightId }</span>
           </div> */}
-          {/* <div className="flex items-center">
-            <span className="font-medium mr-1">რაოდენობა:</span>
-            <span>{parcel.amount ?? '1'}</span>
-          </div> */}
+          <div className="flex items-center" onClick={()=>console.log(parcel)}>
+            <span className="font-medium mr-1">ჩამოსვლის დრო:</span>
+            <span>{     new Date(parcel.arrived_at).toISOString().split('T')[0] }</span>
+          </div>
+       
           <div className="flex items-center">
             <span className="font-medium mr-1 ">ფასი:</span>
-            <span className="text-green-400 font-bold">₾ {parcel.price ?? 150}</span>
+            <span className="text-green-400 font-bold">₾ {parcel.price ?? 0}</span>
           </div>
           {/* <div className="flex items-center">
             <span className="font-medium mr-1">ინვოისი:</span>
@@ -209,7 +210,7 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
 
       {/* Modal for Creating Declaration */}
       <Modal visible={isModalOpen} onCancel={closeModal} footer={null} title="Upload Declaration">
-        <h2 className="text-xl mb-4">Upload Declaration (PDF)</h2>
+        <h2 className="text-xl mb-4">დეკლერაცის ატვირთვა (PDF)</h2>
         <div className="mb-4">
           <Input
             placeholder="Type (e.g., Technological)"
@@ -242,14 +243,14 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
         </div>
         <div className="flex justify-end gap-4 mt-4">
           <Button className="bg-gray-400 text-white" onClick={closeModal}>
-            Cancel
+           გაუქმება
           </Button>
           <Button
             className="bg-blue-500 text-white hover:bg-blue-600"
             type="primary"
             onClick={handleUpload}
           >
-            Upload
+           ატვირთვა
           </Button>
         </div>
       </Modal>
@@ -308,13 +309,13 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
             </div>
           </div>
         ) : (
-          <p className="text-center text-gray-500">No Declaration Available</p>
+          <p className="text-center text-gray-500">დეკლერაცია არ არსებობს</p>
         )}
       </Modal>
 
       {/* Modal for Updating Declaration */}
       <Modal visible={isUpdateModalOpen} onCancel={() => setIsUpdateModalOpen(false)} footer={null} title="დეკლარაციის განახლება">
-        <h2 className="text-xl mb-4">Update Declaration (PDF)</h2>
+        <h2 className="text-xl mb-4">დეკლერაცის ატვირთვა (PDF)</h2>
         <div className="mb-4">
           <Input
             placeholder="Type (e.g., Technological)"
@@ -347,14 +348,14 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
         </div>
         <div className="flex justify-end gap-4 mt-4">
           <Button className="bg-gray-400 text-white" onClick={() => setIsUpdateModalOpen(false)}>
-            Cancel
+           გაუქმება
           </Button>
           <Button
             className="bg-blue-500 text-white hover:bg-blue-600"
             type="primary"
             onClick={handleUpdate}
           >
-            Update
+          ატვირთვა
           </Button>
         </div>
       </Modal>

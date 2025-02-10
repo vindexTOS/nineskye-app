@@ -14,6 +14,9 @@ export class Parcel {
   @Column({type : 'float' }) 
   weight: number;
 
+  @Column({type : String}) 
+  arrived_at: String;
+
   @Column("decimal", { precision: 10, scale: 2 })
   price: number;
 
@@ -42,4 +45,6 @@ export class Parcel {
   @ManyToOne(() => Flight, (flight) => flight.parcels)
   @JoinColumn()
   flight: Flight;
+
+
 }

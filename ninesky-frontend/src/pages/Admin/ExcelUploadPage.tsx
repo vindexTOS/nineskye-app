@@ -6,6 +6,8 @@ import Loading from '../../components/status/Loading';
 import { Button, Modal, Form, Input,Typography, message, Table, Pagination, Upload, Select, DatePicker } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { DeleteParcel } from '../../API/Admin/DeleteRequests';
+import { shippingStatusTranslation } from '../../types/shipping_status';
+import { paymentStatusTranslation } from '../../types/payment';
 
 export default function ExcelUploadPage() {
   const [data, setData] = useState<any>([]);
@@ -197,11 +199,24 @@ console.log(flightInfo)
   const columns = [
     { title: 'id', dataIndex: 'id', key: 'id' },
     // { title: 'Tracking ID', dataIndex: 'tracking_id', key: 'id' },
-    { title: 'გადაზიდვის სტატუსი', dataIndex: 'shipping_status', key: 'shipping_status' },
-    { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status' },
+    {
+      title: 'გადაზიდვის სტატუსი',
+      dataIndex: 'shipping_status',
+      key: 'shipping_status',
+      render: (text:string) => shippingStatusTranslation[text] || text,  
+    },
+    { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status', 
+      render: (text: string) => paymentStatusTranslation[text?.trim()] || text || 'უცნობი',
+
+     },
     { title: 'წონა', dataIndex: 'weight', key: 'weight' },
     { title: 'ფასი', dataIndex: 'price', key: 'price' },
-    // { title: 'თარიღი', dataIndex: 'arrived_at', key: 'arrived_at' },
+    {
+      title: 'თარიღი',
+      dataIndex: 'arrived_at',
+      key: 'arrived_at',
+      render: (text:any) => new Date(text).toISOString().split('T')[0],  
+    },
     {
       title: 'დეკლერაცია',
       key: 'declaration',

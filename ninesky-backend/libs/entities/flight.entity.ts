@@ -21,4 +21,9 @@ export class Flight {
 
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
+
+
+    @Column({type :String}) 
+    arrived_at: String;
+ 
 }

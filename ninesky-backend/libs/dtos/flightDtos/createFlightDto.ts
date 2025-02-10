@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsEnum, IsString, IsOptional  } from 'class-validator';
+import { IsNotEmpty, IsEnum, IsString, IsOptional, IsDate  } from 'class-validator';
 import { FlightFrom } from 'libs/enums/flightsFrom.enum';
 
 export class CreateFlightDto {
@@ -12,5 +12,5 @@ export class CreateFlightDto {
 
     @IsOptional()
     @IsString()
-    arrived_at?: string; 
+    arrived_at?:string; 
   }

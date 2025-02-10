@@ -114,6 +114,7 @@ export class AdminService implements OnModuleInit {
           owner: owner ? owner : null,
           weight: parcel.weight,
           flight: Flight,
+          arrived_at:data.flight_info.arrived_at
         });
         parcels.push(createdParcel);
       }

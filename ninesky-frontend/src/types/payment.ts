@@ -7,3 +7,15 @@ export type paymenttype = {
     currency: string
 
 }
+export enum PaymentType {
+    PAID = 'Paid',
+    UNPAID = 'Unpaid',
+}
+
+
+export const paymentStatusTranslation: Record<string, string> = {
+    [PaymentType.PAID]: 'გადახდილია',
+    [PaymentType.UNPAID]: 'გადაუხდელია',
+  };
+  
+ 

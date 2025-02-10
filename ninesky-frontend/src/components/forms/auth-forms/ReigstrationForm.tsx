@@ -10,6 +10,7 @@ import Loading from '../../status/Loading';
 import { Link, useNavigate } from 'react-router-dom';
 import ErrorModal from '../../status/Error';
 import Terms from '../../../pages/TermsAndServices/Terms';
+import Swal from 'sweetalert2';
 const { Option } = Select;
 
 export default function RegistrationForm() {
@@ -18,17 +19,29 @@ export default function RegistrationForm() {
   const [termsVisible, setTermsVisible] = useState(false);
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
-  const nav = useNavigate()
+  // const nav = useNavigate()
   // const [isJuridical, setIsJuridical] = useState(false);
   const mutation = useMutation({
     mutationFn: (body: RegisterType) => {
       return RegisterPostRequest(body);
     },
     onError(err) {
-
+      Swal.fire({
+        title: 'შეცდომა',
+        text: "პირადი ნომერი, ტელეფონის ნომერი ან ემაილი უკვე არსებობს" ,
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     },
     onSuccess(suc) {
-      nav("/user/parcel/storage");
+      Swal.fire({
+        title: 'წარმატებული რეგისტრაცია!',
+        text: 'გთხოვთ შეამოწმოთ ელ-ფოსტა აქაუნთის გასააქტიურებლად',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
+      // Optional: Redirect or perform any additional actions
+      // nav("/user/parcel/storage");
     }
   });
 
@@ -207,7 +220,7 @@ export default function RegistrationForm() {
                 <Input.Password placeholder="პაროლი" prefix={<LockOutlined />} />
               </Form.Item>
               <Loading loading={isPending} />
-              {isError && <ErrorModal error={error?.message || "შეცდომა"} />}
+              {/* {isError && <ErrorModal error={error?.message || "შეცდომა"} />} */}
               {/* <Form.Item
                 label="Repeat Password"
                 name="repeatPassword"
