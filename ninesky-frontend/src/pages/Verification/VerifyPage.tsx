@@ -17,8 +17,8 @@ export default function VerifyPage() {
                     const decodedToken: any = jwt_decode(suc.data.access_token);
                     const expirationTime = decodedToken.exp * 1000;
                     const expirationDate = new Date(expirationTime);
-                    cookies.set("token", token, { path: "/", expires: expirationDate });
-
+                    cookies.set("token",suc.data.access_token, { path: "/", expires: expirationDate });
+                // zaza nozadze
                     setTimeout(()=>{
                         nav("/user/parcel/storage")
                     },500)
