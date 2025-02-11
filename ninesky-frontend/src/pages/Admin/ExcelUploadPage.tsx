@@ -1,16 +1,18 @@
  import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import * as XLSX from 'xlsx';
-import { CreateParcles, GetParcels, UpdateParcels } from '../../API/Admin/CreateParcels';
+import { CreateParcles, GetParcels, UpdateParcels } from '../../API/Admin/ParcelAndFlights';
 import Loading from '../../components/status/Loading';
 import { Button, Modal, Form, Input,Typography, message, Table, Pagination, Upload, Select, DatePicker } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { DeleteParcel } from '../../API/Admin/DeleteRequests';
 import { shippingStatusTranslation } from '../../types/shipping_status';
 import { paymentStatusTranslation } from '../../types/payment';
+import { CreateParcelsType, ParcelDto } from '../../types/parcel.type';
+import FlightPage from './FlightPage';
 
 export default function ExcelUploadPage() {
-  const [data, setData] = useState<any>([]);
+  const [data, setData] = useState<ParcelDto[] | any>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,23 +57,21 @@ const {Text} = Typography
         ownerId: Object.values(item)[1],
         weight: Object.values(item)[2]
       }));
+
+
       setData(updatedData);
     };
     reader.readAsBinaryString(file);
   };
 
   const handleUploadFinish = () => {
-    if (data.length > 0) {
+    if (data && data.length > 0) {
       const uploadData = {
-        flight_info: {
-          flight_id: form.getFieldValue('flight_id'),
-          flight_from: form.getFieldValue('flight_from'),
-          arrived_at: form.getFieldValue('arrived_at'),
-        },
+        flightId: form.getFieldValue('flight_id'),
         parcels: data,
       };
-      console.log(uploadData)
-      createMutation.mutate(uploadData);
+ 
+      createMutation.mutateAsync(uploadData);
       handleCancel();
     } else {
       message.error('Please upload a valid Excel file with parcel data.');
@@ -93,7 +93,7 @@ const {Text} = Typography
     }
  })
   const createMutation = useMutation({
-    mutationFn: (body: any) => {
+    mutationFn: (body:CreateParcelsType) => {
       return CreateParcles(body);
     },
     onError(err) {
@@ -146,25 +146,21 @@ const {Text} = Typography
   const handleSingleParcelFinish = (values: any) => { 
   console.log(values)
     // Transform values into CreateParcelDto format
-    const newParcel    = {
+    const newParcel:ParcelDto    = {
       tracking_id: values.tracking_id,
-      weight: values.weight ? Number(values.weight) : undefined,
+      weight: values.weight ? Number(values.weight) : 0,
       ownerId: values.ownerId,
     };
 
     // Create the flight information for a single parcel
-    const flightInfo = {
-      flight_id: values.flight_id,
-      flight_from: values.flight_from,
-      arrived_at: values.arrived_at,
-    };
-console.log(flightInfo)
+  
+ 
     const uploadData = {
-      flight_info: flightInfo,
-      parcels: [newParcel],
+      flightId: values.flight_id,
+      parcels: [ newParcel] ,
     };
-
-    createMutation.mutate(uploadData);
+ 
+    createMutation.mutateAsync(uploadData);
     handleSingleParcelCancel();
   };
 
@@ -199,12 +195,12 @@ console.log(flightInfo)
   const columns = [
     { title: 'tracking ID', dataIndex: 'id', key: 'id' },
     // { title: 'Tracking ID', dataIndex: 'tracking_id', key: 'id' },
-    {
-      title: 'გადაზიდვის სტატუსი',
-      dataIndex: 'shipping_status',
-      key: 'shipping_status',
-      render: (text:string) => shippingStatusTranslation[text] || text,  
-    },
+    // {
+    //   title: 'გადაზიდვის სტატუსი',
+    //   dataIndex: 'shipping_status',
+    //   key: 'shipping_status',
+    //   render: (text:string) => shippingStatusTranslation[text] || text,  
+    // },
     { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status', 
       render: (text: string) => paymentStatusTranslation[text?.trim()] || text || 'უცნობი',
 
@@ -215,7 +211,7 @@ console.log(flightInfo)
       title: 'თარიღი',
       dataIndex: 'arrived_at',
       key: 'arrived_at',
-      render: (text:any) => new Date(text).toISOString().split('T')[0],  
+      // render: (text:any) => new Date(text).toISOString().split('T')[0],  
     },
     {
       title: 'დეკლერაცია',
@@ -272,6 +268,8 @@ console.log(flightInfo)
   return (
     <div className="p-10 min-h-screen">
       <div className="mx-auto bg-white rounded-lg p-8">
+      <FlightPage />
+      
         <div className="flex justify-between mb-6 flex-col">
           <Button type="primary" onClick={handleManualOpen}>
             +  ექსელით შექმნა   +
@@ -279,6 +277,7 @@ console.log(flightInfo)
           <Button type="primary" onClick={handleSingleParcelOpen} className="mt-4">
             + ერთის შექმნა +
           </Button>
+          
         </div>
         <Input.Search
           placeholder="მოძებნა თრექინგ Id-ით"
@@ -411,29 +410,14 @@ console.log(flightInfo)
         >
           <Form form={singleParcelForm} layout="vertical" onFinish={handleSingleParcelFinish}>
             <Form.Item
-              label="რეისის ID"
+              label="ფრენის ID"
               name="flight_id"
               rules={[{ required: true, message: 'შეიყვანეთ რეისის იდენტიფიკატორი' }]}
             >
               <Input />
             </Form.Item>
-            <Form.Item
-              label="ქვეყანა"
-              name="flight_from"
-              rules={[{ required: true, message: 'შეიყვანეთ ტრანსპორტის ქვეყანა' }]}
-            >
-              <Select>
-                <Select.Option value="China">ჩინეთი</Select.Option>
-                <Select.Option value="Turkey">თურქეთი</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item
-  label="თარიღი"
-  name="arrived_at"
-  rules={[{ required: true, message: 'შეიყვანეთ ჩამოსვლა' }]}
->
-  <DatePicker style={{ width: '100%' }} />
-</Form.Item>
+          
+ 
             <Form.Item
               label="თრექინგის ID"
               name="tracking_id"

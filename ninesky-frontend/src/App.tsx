@@ -25,6 +25,7 @@ import PaymentHistory from './pages/Admin/PaymentHistory';
 import TransactionHistory from './pages/Admin/TransactionHistory';
 import VerifyPage from './pages/Verification/VerifyPage';
 import PasswordRecovery from './pages/PasswordRecovery/PasswordRecovery';
+import FlightPage from './pages/Admin/FlightPage';
 
 
 const NotFound = () => <h1 className='h-[100vh] flex items-center  justify-center w-[100%] '>404 - Not Found</h1>;
@@ -57,10 +58,12 @@ function App() {
  <Route path='/admin-dashboard' element={<AdminAuthGuard><AdminDashboard /></AdminAuthGuard>}>
   <Route index element={<Navigate to="excel-upload" />} />
   <Route path="excel-upload" element={<AdminAuthGuard><ExcelUploadPage /></AdminAuthGuard>} />
+  <Route path="flights" element={<AdminAuthGuard><FlightPage /></AdminAuthGuard>} />
   <Route path="user-managment" element={<AdminAuthGuard><UsersManagment /></AdminAuthGuard>} />
   <Route path="price-managment" element={<AdminAuthGuard><PriceManagment /></AdminAuthGuard>} />
   <Route path="payment-history" element={<AdminAuthGuard><PaymentHistory /></AdminAuthGuard>} />
   <Route path="transaction-history" element={<AdminAuthGuard><TransactionHistory /></AdminAuthGuard>} />
+
  
 </Route>
 {/*  */}

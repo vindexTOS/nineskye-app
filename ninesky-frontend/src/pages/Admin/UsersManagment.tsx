@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { GetAllUsers } from '../../API/User/GetRequests';
 import Loading from '../../components/status/Loading';
  import { UpdateUserInfo } from '../../API/Admin/UpdateUser';
-import { GetParcels, UpdateParcels } from '../../API/Admin/CreateParcels';
+import { GetParcels, UpdateParcels } from '../../API/Admin/ParcelAndFlights';
 import {ShippingStatus, shippingStatusTranslation} from "../../types/shipping_status"
 import { DeleteUser } from '../../API/Admin/DeleteRequests';
 import { paymentStatusTranslation } from '../../types/payment';

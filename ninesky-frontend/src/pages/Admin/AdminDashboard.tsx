@@ -73,11 +73,14 @@ const cookies = new Cookies
             Users
           </Menu.Item>*/}
           <Menu.Item key="user-managment" icon={<UserOutlined />}>
-      მომხმარებლები
+          მომხმარებლები
           </Menu.Item> 
           <Menu.Item key="excel-upload" icon={<FileOutlined />}>
            ამანათები
           </Menu.Item>
+          {/* <Menu.Item key="flights" icon={<FileOutlined />}>
+           რეისები
+          </Menu.Item> */}
           <Menu.Item key="price-managment" icon={<DollarCircleOutlined />}>
             ფასის
           </Menu.Item>

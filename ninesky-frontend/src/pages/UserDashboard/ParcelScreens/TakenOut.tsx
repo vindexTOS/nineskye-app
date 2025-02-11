@@ -6,6 +6,7 @@ import ParcelsTable from '../../../components/parcels/ParcelsTable';
 import { useEffect, useState } from 'react';
 import jwt_decode from "jwt-decode"
 import Cookies from 'universal-cookie';
+import ParcelsCard from '../../../components/parcels/ParcelsCard';
 export default function TakenOut() {
 
   const [userInfo, setUserInfo] = useState<any>()
@@ -31,17 +32,26 @@ export default function TakenOut() {
     queryFn: () => userInfo ? GetUserInfo( ) : Promise.resolve(),
     enabled: !!userInfo
   });
-      useEffect(()=>{
-        if(data && data?.data ){
-          // console.log(data.data.parcels)
-  let newData = data.data.parcels.filter((val:any) => val.shipping_status == "Taken")
-  setStorageData (newData)
-        }
-      },[data])
+  
+
+
+  useEffect(() => {
+    if (data?.data?.flights) {
+    
+      const allParcels = data.data.flights.flatMap((flight: any) => flight.parcels || []).filter((val:any)=> val.parcelStatus == "Taken");
+      setStorageData(allParcels);
+      console.log("Combined Parcels:", allParcels);
+    }
+  }, [data]);
 
   return (
 
-    <ParcelsTable refetch={refetch} data={StorageData} color={'#00cd63'} title={'გატანილი'} />
+   <>
+   {StorageData.map((val:any, index:number)=><ParcelsCard key={index} refetch={refetch} parcel={val } color={"#22c55e"} /> )}
+   </>
+  
+ 
+  
 
   )
 }

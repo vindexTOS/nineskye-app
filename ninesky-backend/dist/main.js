@@ -524,6 +524,7 @@ const user_entity_1 = __webpack_require__(/*! ./user.entity */ "./libs/entities/
 const declaration_entity_1 = __webpack_require__(/*! ./declaration.entity */ "./libs/entities/declaration.entity.ts");
 const payment_status_enum_1 = __webpack_require__(/*! libs/enums/payment.status.enum */ "./libs/enums/payment.status.enum.ts");
 const flight_entity_1 = __webpack_require__(/*! ./flight.entity */ "./libs/entities/flight.entity.ts");
+const parcelStatus_enum_1 = __webpack_require__(/*! libs/enums/parcelStatus.enum */ "./libs/enums/parcelStatus.enum.ts");
 let Parcel = class Parcel {
 };
 exports.Parcel = Parcel;
@@ -547,6 +548,14 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], Parcel.prototype, "payment_status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: parcelStatus_enum_1.parcelStatus,
+        default: parcelStatus_enum_1.parcelStatus.ARRIEVED,
+    }),
+    __metadata("design:type", String)
+], Parcel.prototype, "parcelStatus", void 0);
 __decorate([
     (0, typeorm_1.OneToOne)(() => declaration_entity_1.Declaration, (declaration) => declaration.parcel, { cascade: true }),
     (0, typeorm_1.JoinColumn)(),
@@ -931,6 +940,24 @@ var FlightFrom;
 
 /***/ }),
 
+/***/ "./libs/enums/parcelStatus.enum.ts":
+/*!*****************************************!*\
+  !*** ./libs/enums/parcelStatus.enum.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parcelStatus = void 0;
+var parcelStatus;
+(function (parcelStatus) {
+    parcelStatus["ARRIEVED"] = "Arrieved";
+    parcelStatus["TAKEN"] = "Taken";
+})(parcelStatus || (exports.parcelStatus = parcelStatus = {}));
+
+
+/***/ }),
+
 /***/ "./libs/enums/payment.status.enum.ts":
 /*!*******************************************!*\
   !*** ./libs/enums/payment.status.enum.ts ***!
@@ -1075,7 +1102,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AdminController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
@@ -1099,6 +1126,9 @@ let AdminController = class AdminController {
     }
     async createParcels(createParcelsDto) {
         return this.adminService.createParcels(createParcelsDto);
+    }
+    getParcels(data) {
+        return this.adminService.getAllParcel(data);
     }
     updateParcel(id, updateParcelDto) {
         return this.adminService.updateParcel(id, updateParcelDto);
@@ -1156,11 +1186,18 @@ __decorate([
     __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
 ], AdminController.prototype, "createParcels", null);
 __decorate([
+    (0, common_1.Get)('/get-parcels'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [typeof (_h = typeof getParcelDto !== "undefined" && getParcelDto) === "function" ? _h : Object]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getParcels", null);
+__decorate([
     (0, common_1.Put)('/update-parcel/:id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, typeof (_h = typeof update_parcel_dto_1.UpdateParcelDto !== "undefined" && update_parcel_dto_1.UpdateParcelDto) === "function" ? _h : Object]),
+    __metadata("design:paramtypes", [String, typeof (_j = typeof update_parcel_dto_1.UpdateParcelDto !== "undefined" && update_parcel_dto_1.UpdateParcelDto) === "function" ? _j : Object]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "updateParcel", null);
 __decorate([
@@ -1174,7 +1211,7 @@ __decorate([
     (0, common_1.Get)('/get-users'),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_j = typeof getUserDto !== "undefined" && getUserDto) === "function" ? _j : Object]),
+    __metadata("design:paramtypes", [typeof (_k = typeof getUserDto !== "undefined" && getUserDto) === "function" ? _k : Object]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "getUsers", null);
 __decorate([
@@ -1182,7 +1219,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_k = typeof update_user_dto_1.UpdateUserDto !== "undefined" && update_user_dto_1.UpdateUserDto) === "function" ? _k : Object, String]),
+    __metadata("design:paramtypes", [typeof (_l = typeof update_user_dto_1.UpdateUserDto !== "undefined" && update_user_dto_1.UpdateUserDto) === "function" ? _l : Object, String]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "updateUser", null);
 __decorate([
@@ -1421,6 +1458,34 @@ let AdminService = class AdminService {
                 throw error;
             }
             throw new common_1.InternalServerErrorException('An error occurred while updating the flight.');
+        }
+    }
+    async getAllParcel(_data) {
+        try {
+            const { tracking_id = '', ownerId = null, page = 1, limit = 10 } = _data;
+            const query = this.parcelRepository.createQueryBuilder('parcel')
+                .leftJoin('parcel.owner', 'owner')
+                .leftJoinAndSelect('parcel.declaration', 'declaration')
+                .addSelect(['owner.id']);
+            if (tracking_id) {
+                query.andWhere('parcel.id = :tracking_id', { tracking_id });
+            }
+            if (ownerId) {
+                query.andWhere('parcel.ownerId = :ownerId', { ownerId });
+            }
+            const totalCount = await query.getCount();
+            query.skip((page - 1) * limit).take(limit);
+            const parcels = await query.getMany();
+            const totalPages = Math.ceil(totalCount / limit);
+            return {
+                parcels,
+                totalPages,
+                totalCount,
+                currentPage: page
+            };
+        }
+        catch (error) {
+            throw new common_1.InternalServerErrorException('Failed to retrieve parcels');
         }
     }
     async createParcels(data) {
@@ -2914,32 +2979,42 @@ let UserService = class UserService {
         }
     }
     async payParcels(userId, parcels) {
-        const user = await this.userRepository.findOne({
-            where: { id: userId },
-        });
-        const pricesList = await Promise.all(parcels.map(async (parcel) => {
-            const mainParcel = await this.parcelRepository.findOne({ where: { id: parcel.tracking_id } });
-            if (mainParcel) {
-                mainParcel.payment_status = payment_status_enum_1.PaymentType.PAID;
-                await this.parcelRepository.save(mainParcel);
-                return Number(mainParcel.price);
+        try {
+            const user = await this.userRepository.findOne({
+                where: { id: userId },
+            });
+            const pricesList = await Promise.all(parcels.map(async (parcel) => {
+                const mainParcel = await this.parcelRepository.findOne({ where: { id: parcel.tracking_id } });
+                return mainParcel ? Number(mainParcel.price) : 0;
+            }));
+            const totalPrice = pricesList.reduce((acc, price) => acc + price, 0);
+            if (user.balance < totalPrice) {
+                throw new common_1.ConflictException("არა საკმარისი ბალანსი");
             }
-            return 0;
-        }));
-        const totalPrice = pricesList.reduce((acc, price) => acc + price, 0);
-        if (user.balance < totalPrice) {
-            console.log('User does not have sufficient balance');
-            return;
+            await Promise.all(parcels.map(async (parcel) => {
+                const mainParcel = await this.parcelRepository.findOne({ where: { id: parcel.tracking_id } });
+                if (mainParcel) {
+                    mainParcel.payment_status = payment_status_enum_1.PaymentType.PAID;
+                    await this.parcelRepository.save(mainParcel);
+                }
+            }));
+            const createTransaction = this.transactionRepository.create({
+                amount: totalPrice,
+                date: new Date(),
+                transactionType: transactions_enum_1.TransactionType.PAYMENT,
+                user,
+            });
+            await this.transactionRepository.save(createTransaction);
+            user.balance = user.balance - totalPrice;
+            await this.userRepository.save(user);
         }
-        const createTransaction = this.transactionRepository.create({
-            amount: totalPrice,
-            date: new Date(),
-            transactionType: transactions_enum_1.TransactionType.PAYMENT,
-            user,
-        });
-        await this.transactionRepository.save(createTransaction);
-        user.balance = user.balance - totalPrice;
-        await this.userRepository.save(user);
+        catch (error) {
+            console.error('Error updating declaration:', error);
+            if (error instanceof common_1.ConflictException) {
+                throw new common_1.ConflictException(error.message);
+            }
+            throw new common_1.InternalServerErrorException(error);
+        }
     }
 };
 exports.UserService = UserService;

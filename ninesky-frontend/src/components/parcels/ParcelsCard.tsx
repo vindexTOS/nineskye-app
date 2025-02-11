@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Input, message } from 'antd';
 import axios from 'axios';
 import { envirement } from '../../envirement/env';
-import Cookies from "universal-cookie";
+import Cookies from 'universal-cookie';
 
 const cookies = new Cookies();
 
-export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, color: string, refetch: any }) {
+export default function ParcelsCard({ parcel, color, refetch }: { parcel: any; color: string; refetch: any }) {
   // State for creation modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [type, setType] = useState('');
   const [website, setWebsite] = useState('');
   const [comment, setComment] = useState('');
-  const [itemPirce, setItemPrice] = useState(0);
+  const [itemPrice, setItemPrice] = useState(0);
 
   // State for update modal
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -23,13 +23,15 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
   const [updateComment, setUpdateComment] = useState('');
   const [updateItemPrice, setUpdateItemPrice] = useState(0);
 
-  const token = cookies.get("token");
-
   // State for declaration details modal (view declaration)
   const [selectedParcel, setSelectedParcel] = useState<any>(null);
-  const [isDelecrationModalOpen, setIsDeclerationModalOpen] = useState(false);
-
-  // ----- Create Declaration Functions -----
+  const [isDeclarationModalOpen, setIsDeclarationModalOpen] = useState(false);
+ 
+  const token = cookies.get('token');
+  useEffect(()=>{
+console.log(parcel)
+  },[parcel])
+  // ------ Create Declaration Handlers ------
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -47,17 +49,18 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
   const handleUpload = async () => {
     const formData = new FormData();
     formData.append('tracking_id', parcel.id);
-    formData.append('price', String(itemPirce));
+    formData.append('price', String(itemPrice));
     formData.append('type', type);
     formData.append('website', website);
     formData.append('comment', comment);
 
+    if (itemPrice >= 300 && !selectedFile) {
+      message.error('ატვირთეთ ინვოისი');
+      return;
+    }
+    if (selectedFile) formData.append('file', selectedFile);
+
     try {
-      if (itemPirce >= 300 && !selectedFile) {
-        message.error("ატვირთეთ ინვოისი");
-        return;
-      }
-      if (selectedFile) formData.append('file', selectedFile);
       await axios.post(envirement.baseUrl + '/user/declarate-parcel', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -66,7 +69,7 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
       });
       closeModal();
       refetch();
-      message.success("დეკლარაცია აიტვირთა წარმატებით");
+      message.success('დეკლარაცია წარმატებით აიტვირთა');
     } catch (error: any) {
       closeModal();
       message.error(error.message);
@@ -74,22 +77,21 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
     }
   };
 
-  // ----- View Declaration & Open Update Modal -----
+  // ------ View Declaration Handlers ------
   const handleOpenDeclaration = (parcel: any) => {
     setSelectedParcel(parcel);
-    setIsDeclerationModalOpen(true);
+    setIsDeclarationModalOpen(true);
   };
 
-  const openDeclaration = () => {
-    // Convert the invoice_Pdf buffer to a Blob URL and open it in a new window
-    if (parcel.declaration && parcel.declaration.invoice_Pdf) {
-      const blob = new Blob([new Uint8Array(parcel.declaration.invoice_Pdf.data)], { type: 'application/pdf' });
+  const openDeclarationPDF = () => {
+    if (selectedParcel?.declaration?.invoice_Pdf) {
+      const blob = new Blob([new Uint8Array(selectedParcel.declaration.invoice_Pdf.data)], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       window.open(url);
     }
   };
 
-  // ----- Update Declaration Functions -----
+  // ------ Update Declaration Handlers ------
   const handleOpenUpdateModal = (parcel: any) => {
     if (parcel.declaration) {
       setUpdateType(parcel.declaration.type || '');
@@ -113,10 +115,9 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
     formData.append('type', updateType);
     formData.append('website', updateWebsite);
     formData.append('comment', updateComment);
-    // Append file only if a new one is selected; otherwise, the service can keep the current file.
-    if (updateSelectedFile) {
-      formData.append('file', updateSelectedFile);
-    }
+
+    if (updateSelectedFile) formData.append('file', updateSelectedFile);
+
     try {
       await axios.put(envirement.baseUrl + '/user/update-declaration', formData, {
         headers: {
@@ -126,58 +127,45 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
       });
       setIsUpdateModalOpen(false);
       refetch();
-      message.success("დეკლარაცია განახლდა წარმატებით");
+      message.success('დეკლარაცია განახლდა წარმატებით');
     } catch (error: any) {
       setIsUpdateModalOpen(false);
-      message.error("დეკლარაციის განახლებისას მოხდა შეცდომა");
+      message.error('დეკლარაციის განახლებისას შეცდომა მოხდა');
       console.error('Error updating declaration:', error);
     }
   };
 
   return (
-    <div className="bg-white  shadow-md rounded-lg mb-4 overflow-hidden">
-      {/* Upper Part */}
-      <div style={{ backgroundColor: color }} className="text-white p-4 ">
-        <div className="flex flex-wrap justify-between text-[1rem] ">
+    <div className="bg-white shadow-md rounded-lg mb-4 overflow-hidden">
+      {/* Upper Section */}
+      <div style={{ backgroundColor: color }} className="text-white p-4">
+        <div className="flex flex-wrap justify-between text-[1rem]">
           {/* <div className="flex items-center">
-            <span className="font-medium mr-1">რეისი:</span>
-            <span>{ parcel.flightId }</span>
-          </div> */}
-          <div className="flex items-center" onClick={()=>console.log(parcel)}>
             <span className="font-medium mr-1">ჩამოსვლის დრო:</span>
-            <span>{     new Date(parcel.arrived_at).toISOString().split('T')[0] }</span>
-          </div>
-       
+            <span>{  Date(parcel.arrived_at)  }</span>
+          </div> */}
           <div className="flex items-center">
-            <span className="font-medium mr-1 ">ფასი:</span>
+            <span className="font-medium mr-1">ფასი:</span>
             <span className="text-green-400 font-bold">₾ {parcel.price ?? 0}</span>
           </div>
-          {/* <div className="flex items-center">
-            <span className="font-medium mr-1">ინვოისი:</span>
-            <span>{parcel.invoice ?? 'INV123'}</span>
-          </div> */}
         </div>
       </div>
 
-      {/* Lower Part */}
-      <div className="p-4  max_smm1:py-6 bg-gray-100">
-        <div className="flex max_smm1:gap-5 flex-wrap justify-between text-[1rem]">
+      {/* Lower Section */}
+      <div className="p-4 bg-gray-100">
+        <div className="flex flex-wrap justify-between text-[1rem]">
           <div className="flex items-center">
             <span className="font-medium mr-1">თრექინგი ID:</span>
-            <span>{parcel.tracking_id ?? '424244'}</span>
+            <span>{parcel.id ?? 'N/A'}</span>
           </div>
           <div className="flex items-center">
             <span className="font-medium mr-1">წონა:</span>
-            <span>{parcel.weight  } kg</span>
+            <span>{parcel.weight} kg</span>
           </div>
-          {/* <div className="flex items-center">
-            <span className="font-medium mr-1">მოცულობა:</span>
-            <span>{parcel.vol_weight ?? 'N/A'}</span>
-          </div> */}
           <div className="flex items-center">
             <span className="font-medium mr-1">გადახდა:</span>
-            <span className={`font-bold ${parcel.payment_status === "Unpaid" ? "text-red-500" : "text-green-500"}`}>
-              {parcel.payment_status === "Unpaid" ? "გადაუხდელია" : "გადახდილია"}
+            <span className={`font-bold ${parcel.payment_status === 'Unpaid' ? 'text-red-500' : 'text-green-500'}`}>
+              {parcel.payment_status === 'Unpaid' ? 'გადაუხდელია' : 'გადახდილია'}
             </span>
           </div>
           <div className="flex items-center">
@@ -189,6 +177,7 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
                 >
                   აქტიური დეკლარაცია
                 </button>
+                {/* Uncomment below to show update button if needed */}
                 {/* <button
                   className="ml-2 bg-yellow-500 text-white px-2 py-2 rounded hover:bg-yellow-600"
                   onClick={() => handleOpenUpdateModal(parcel)}
@@ -209,7 +198,7 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
       </div>
 
       {/* Modal for Creating Declaration */}
-      <Modal visible={isModalOpen} onCancel={closeModal} footer={null} title="Upload Declaration">
+      <Modal visible={isModalOpen} onCancel={closeModal} footer={null} title="დეკლარაციის ატვირთვა">
         <h2 className="text-xl mb-4">დეკლერაცის ატვირთვა (PDF)</h2>
         <div className="mb-4">
           <Input
@@ -226,7 +215,7 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
           />
           <Input
             placeholder="ფასი (ლარსი)"
-            value={itemPirce}
+            value={itemPrice}
             type="number"
             onChange={(e) => setItemPrice(Number(e.target.value))}
             className="mb-2"
@@ -237,31 +226,22 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
             onChange={(e) => setComment(e.target.value)}
             className="mb-2"
           />
-          {itemPirce >= 300 && (
-            <input type="file" accept="application/pdf" onChange={handleFileChange} />
+          {itemPrice >= 300 && (
+            <input type="file" accept="application/pdf" onChange={handleFileChange} className="mb-2" />
           )}
         </div>
         <div className="flex justify-end gap-4 mt-4">
           <Button className="bg-gray-400 text-white" onClick={closeModal}>
-           გაუქმება
+            გაუქმება
           </Button>
-          <Button
-            className="bg-blue-500 text-white hover:bg-blue-600"
-            type="primary"
-            onClick={handleUpload}
-          >
-           ატვირთვა
+          <Button className="bg-blue-500 text-white hover:bg-blue-600" type="primary" onClick={handleUpload}>
+            ატვირთვა
           </Button>
         </div>
       </Modal>
 
       {/* Declaration Details Modal */}
-      <Modal
-        title="დეკლარაცის დეტალები"
-        open={isDelecrationModalOpen}
-        onCancel={() => setIsDeclerationModalOpen(false)}
-        footer={null}
-      >
+      <Modal title="დეკლარაციის დეტალები" open={isDeclarationModalOpen} onCancel={() => setIsDeclarationModalOpen(false)} footer={null}>
         {selectedParcel?.declaration ? (
           <div className="space-y-4">
             <div className="flex items-center">
@@ -275,7 +255,7 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
             <div className="flex items-center">
               <span className="font-semibold w-1/3">ფასი:</span>
               <span className="w-2/3">₾ {selectedParcel.declaration.price}</span>
-            </div> 
+            </div>
             <div className="flex items-center">
               <span className="font-semibold w-1/3">Website:</span>
               <a
@@ -293,7 +273,7 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
             </div>
             {selectedParcel.declaration.invoice_Pdf && (
               <div className="flex justify-center mt-6">
-                <Button type="primary" onClick={openDeclaration}>
+                <Button type="primary" onClick={openDeclarationPDF}>
                   ინვოისის ნახვა
                 </Button>
               </div>
@@ -309,7 +289,7 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
             </div>
           </div>
         ) : (
-          <p className="text-center text-gray-500">დეკლერაცია არ არსებობს</p>
+          <p className="text-center text-gray-500">დეკლარაცია არ არსებობს</p>
         )}
       </Modal>
 
@@ -343,19 +323,15 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any, c
             className="mb-2"
           />
           {updateItemPrice >= 300 && (
-            <input type="file" accept="application/pdf" onChange={handleUpdateFileChange} />
+            <input type="file" accept="application/pdf" onChange={handleUpdateFileChange} className="mb-2" />
           )}
         </div>
         <div className="flex justify-end gap-4 mt-4">
           <Button className="bg-gray-400 text-white" onClick={() => setIsUpdateModalOpen(false)}>
-           გაუქმება
+            გაუქმება
           </Button>
-          <Button
-            className="bg-blue-500 text-white hover:bg-blue-600"
-            type="primary"
-            onClick={handleUpdate}
-          >
-          ატვირთვა
+          <Button className="bg-blue-500 text-white hover:bg-blue-600" type="primary" onClick={handleUpdate}>
+            ატვირთვა
           </Button>
         </div>
       </Modal>

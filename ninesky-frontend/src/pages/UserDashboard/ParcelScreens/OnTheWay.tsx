@@ -31,13 +31,15 @@ export default function OnTheWay() {
     queryFn: () => userInfo ? GetUserInfo( ) : Promise.resolve(),
     enabled: !!userInfo
   });
-      useEffect(()=>{
-        if(data && data?.data ){
-          // console.log(data.data.parcels)
-  let newData = data.data.parcels.filter((val:any) => val.shipping_status == "Shipped")
-  setStorageData (newData)
+ 
+      useEffect(() => {
+        if (data?.data?.flights) {
+           
+        
+         let extractedFligts =  data.data.flights.filter((val:any)=>  val.shipping_status ==  'Shipped') 
+          setStorageData(extractedFligts);
         }
-      },[data ])
+      }, [data]);
   return (
  
        <ParcelsTable  refetch={refetch} data={StorageData}   color={'#ff5223'}   title={'გამოგზავნილი'} />

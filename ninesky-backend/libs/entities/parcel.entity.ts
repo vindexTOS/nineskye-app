@@ -4,6 +4,7 @@ import { ShippingStatus } from 'libs/enums/shipping.status.enum';
 import { Declaration } from './declaration.entity';
 import { PaymentType } from 'libs/enums/payment.status.enum';
 import { Flight } from './flight.entity';
+import { parcelStatus } from 'libs/enums/parcelStatus.enum';
 
 @Entity()
 export class Parcel {
@@ -24,6 +25,14 @@ export class Parcel {
   })
   payment_status: string;
 
+
+  @Column({
+    type: 'enum',
+    enum: parcelStatus,
+    default: parcelStatus.ARRIEVED,
+  })
+  parcelStatus: string;
+
   @OneToOne(() => Declaration,(declaration)=>declaration.parcel ,{ cascade: true })
   @JoinColumn() 
   declaration: Declaration;
@@ -33,7 +42,7 @@ export class Parcel {
 
   @ManyToOne(() => Flight, (flight) => flight.parcels)
   @JoinColumn()
-  flight: Flight;
+  flight: Flight;
 
 
 }

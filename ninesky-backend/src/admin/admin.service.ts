@@ -184,6 +184,47 @@ export class AdminService implements OnModuleInit {
   }
 
   
+  async getAllParcel(_data: getParcelDto): Promise<{ parcels: Parcel[], totalPages: number, totalCount: number, currentPage: number }> {
+    try {
+      const {
+        tracking_id = '',
+        ownerId = null,
+        page = 1,
+        limit = 10
+      } = _data;
+
+      const query = this.parcelRepository.createQueryBuilder('parcel')
+        .leftJoin('parcel.owner', 'owner')
+        .leftJoinAndSelect('parcel.declaration', 'declaration')
+        .addSelect(['owner.id']);
+      if (tracking_id) {
+        query.andWhere('parcel.id = :tracking_id', { tracking_id });
+      }
+      if (ownerId) {
+        query.andWhere('parcel.ownerId = :ownerId', { ownerId });
+      }
+
+      const totalCount = await query.getCount();
+
+    
+      query.skip((page - 1) * limit).take(limit);
+
+    
+      const parcels = await query.getMany();
+
+        
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return {
+        parcels,
+        totalPages,
+        totalCount,
+        currentPage: page
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to retrieve parcels');
+    }
+  }
 
   async createParcels(data: CreateParcelsDto): Promise<Parcel[]> {
     try {

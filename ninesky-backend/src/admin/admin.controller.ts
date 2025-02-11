@@ -39,6 +39,10 @@ export class AdminController {
     return this.adminService.createParcels(createParcelsDto);
   }
   
+  @Get('/get-parcels')
+  getParcels(@Query() data: getParcelDto) {
+    return this.adminService.getAllParcel(data)
+  }
  @Put('/update-parcel/:id')
  updateParcel(@Param('id') id: string, @Body() updateParcelDto: UpdateParcelDto) {
    return this.adminService.updateParcel(id, updateParcelDto);

@@ -36,7 +36,7 @@ export class UserService {
         where: { id },
         relations: ['transactions', 'userDetails', 'payment_history'],
       });
-  
+
       // Get only flights that have parcels and every parcel's owner id is equal to the provided id.
       const flights = await this.findFlightsByOwner(id);
       console.log(flights);
@@ -48,7 +48,7 @@ export class UserService {
       throw new NotFoundException(error.message);
     }
   }
-  
+
   async findFlightsByOwner(ownerId: string): Promise<Flight[]> {
     try {
       const flights = await this.flightRepository
@@ -74,7 +74,7 @@ export class UserService {
       throw new InternalServerErrorException('Error retrieving flights by owner');
     }
   }
-  
+
 
   async updateProfile(id: string, data: UpdateUserDto) {
     const { email, password, personal_number, office, first_name, last_name, phone_number, city, address } = data;
@@ -91,11 +91,11 @@ export class UserService {
 
 
   async createDeclaration(createDeclarationDto: CreateDeclarationDto) {
-  
+
     try {
       const { type, price, website, comment, invoice_Pdf, tracking_id } = createDeclarationDto;
 
-     
+
       console.log(createDeclarationDto)
       const parcel = await this.parcelRepository.findOne({ where: { id: tracking_id } });
       const declaration = this.declarationRepository.create({
@@ -103,7 +103,7 @@ export class UserService {
         price,
         website,
         comment: comment || null,
-        invoice_Pdf: invoice_Pdf ? invoice_Pdf : null ,
+        invoice_Pdf: invoice_Pdf ? invoice_Pdf : null,
       });
       const savedDeclaration = await this.declarationRepository.save(declaration);
       parcel.declaration = savedDeclaration;
@@ -114,22 +114,22 @@ export class UserService {
       throw new InternalServerErrorException(error)
     }
   }
- 
+
 
 
   async updateDeclaration(updateDeclarationDto: CreateDeclarationDto) {
     try {
       const { type, price, website, comment, invoice_Pdf, tracking_id } = updateDeclarationDto;
-  
+
       // Find the parcel and include the associated declaration if it exists
-      const parcel = await this.parcelRepository.findOne({ 
+      const parcel = await this.parcelRepository.findOne({
         where: { id: tracking_id },
         relations: ['declaration']
       });
       if (!parcel) {
         throw new Error('Parcel not found');
       }
-  
+
       // If there is an existing declaration, update it; otherwise, create a new one.
       let declaration = parcel.declaration;
       if (!declaration) {
@@ -151,65 +151,77 @@ export class UserService {
           declaration.invoice_Pdf = invoice_Pdf;
         }
       }
-  
+
       // Save the declaration record
       const savedDeclaration = await this.declarationRepository.save(declaration);
       // Associate the updated (or newly created) declaration with the parcel
       parcel.declaration = savedDeclaration;
       await this.parcelRepository.save(parcel);
-  
+
       return savedDeclaration;
     } catch (error) {
       console.error('Error updating declaration:', error);
       throw error;
     }
   }
-  
+
 
   async payParcels(userId: string, parcels: { tracking_id: string }[]) {
     // Fetch the user by id
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-    });
-  
-    // Calculate the total price of the parcels with explicit conversion to numbers
-    const pricesList = await Promise.all(
-      parcels.map(async (parcel) => {
-        const mainParcel = await this.parcelRepository.findOne({ where: { id: parcel.tracking_id } });
-        if (mainParcel) {
-          // Update the parcel's payment status to PAID
-          mainParcel.payment_status = PaymentType.PAID;
-          await this.parcelRepository.save(mainParcel);
-          // Explicitly convert the price to a number
-          return Number(mainParcel.price);
-        }
-        return 0; // If the parcel is not found, return 0
-      })
-    );
-  
-    // Sum up the total price, ensuring all values are numbers
-    const totalPrice = pricesList.reduce((acc, price) => acc + price, 0);
-  
-    // Check if the user has sufficient balance
-    if (user.balance < totalPrice) {
-      console.log('User does not have sufficient balance');
-      return;  // Exit if the user doesn't have enough balance
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+
+      // Calculate the total price of the parcels without changing their payment status
+      const pricesList = await Promise.all(
+        parcels.map(async (parcel) => {
+          const mainParcel = await this.parcelRepository.findOne({ where: { id: parcel.tracking_id } });
+          return mainParcel ? Number(mainParcel.price) : 0;
+        })
+      );
+
+      // Sum up the total price
+      const totalPrice = pricesList.reduce((acc, price) => acc + price, 0);
+
+      // Check if the user has sufficient balance
+      if (user.balance < totalPrice) {
+        throw new ConflictException("არა საკმარისი ბალანსი")
+      }
+
+      // Now update each parcel's payment status to PAID
+      await Promise.all(
+        parcels.map(async (parcel) => {
+          const mainParcel = await this.parcelRepository.findOne({ where: { id: parcel.tracking_id } });
+          if (mainParcel) {
+            mainParcel.payment_status = PaymentType.PAID;
+            await this.parcelRepository.save(mainParcel);
+          }
+        })
+      );
+
+      // Create a transaction record for the payment
+      const createTransaction = this.transactionRepository.create({
+        amount: totalPrice,
+        date: new Date(),
+        transactionType: TransactionType.PAYMENT,
+        user,
+      });
+
+      // Save the transaction
+      await this.transactionRepository.save(createTransaction);
+
+      // Deduct the total price from the user's balance and update the user record
+      user.balance = user.balance - totalPrice;
+      await this.userRepository.save(user);
+    } catch (error) {
+      console.error('Error updating declaration:', error);
+      if (error instanceof ConflictException) {
+        throw new ConflictException(error.message)
+      }
+      throw new InternalServerErrorException(error)
     }
-  
-    // Proceed with the transaction if the balance is sufficient
-    const createTransaction = this.transactionRepository.create({
-      amount: totalPrice,
-      date: new Date(), // Create the date
-      transactionType: TransactionType.PAYMENT,
-      user,
-    });
-  
-    // Save the transaction
-    await this.transactionRepository.save(createTransaction);
-  
-    // Deduct the total price from the user's balance and update the user record
-    user.balance = user.balance - totalPrice;
-    await this.userRepository.save(user);
+
   }
 
   //  ???????????????????????????????????????????????????????????????
