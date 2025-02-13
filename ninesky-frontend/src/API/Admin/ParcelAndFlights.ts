@@ -29,6 +29,7 @@ export const GetFlights = async (page: number = 1, limit: number = 10, flight_id
   }
 };
 
+
 export const GetSingleFlight = async (page: number = 1, limit: number = 10, flight_id: string
 
 ) => {
@@ -53,7 +54,27 @@ export const GetSingleFlight = async (page: number = 1, limit: number = 10, flig
 
 
 
+export const UpdateFlight = async (body: CreateFlightType, id:string
 
+) => {
+  try {
+ 
+    const token = cookies.get("token");
+    const res: any = await ApiManager(`admin/update-flight/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data:body
+
+    });
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    const err: any = error;
+    throw new Error(err);
+  }
+};
 
 export const CreateFlight = async (body: CreateFlightType) => {
   try {

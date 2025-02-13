@@ -12,7 +12,8 @@ export class CreateDeclarationDto {
 
   // @IsNumber()  // Transform string to number
   @IsNotEmpty()
-  price: number;
+  @IsString()
+  price: string;
 
   @IsString()
   @IsNotEmpty()

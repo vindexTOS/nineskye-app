@@ -16,3 +16,10 @@ export enum ShippingStatus {
   export const translateShippingStatus = (status: string) => {
     return shippingStatusTranslation[status] || status;  
   };
+
+  export const Gvamunateben: Record<string, string> = {
+    [ShippingStatus.BROUGHT]: 'საწყობშია',
+    [ShippingStatus.SHIPPED]: 'გაგზავნილია',
+    [ShippingStatus.ARRIVED]: 'ჩამოსულია',
+ 
+  };

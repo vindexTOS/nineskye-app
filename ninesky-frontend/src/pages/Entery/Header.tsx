@@ -17,7 +17,7 @@ export default function Header() {
       setPrices(data.data);
     }
   }, [data]);
-
+ 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100); // Delay to ensure the page has loaded
     return () => clearTimeout(timer);
@@ -54,7 +54,7 @@ export default function Header() {
       <span className="inline-block w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse mt-[3px]"></span>
       <div className="flex justify-between w-full">
         <span className="font-medium text-[14px]">ჩინეთიდან საჰაერო გზით ტრანსპორტირება 1კგ:  <span className="text-yellow-400 font-bold ml-4">
-          {prices && prices['China'] ? `₾${prices['China']}` : '₾9.85'}
+          {prices && prices.usdPrice && prices.usdPrice['chinaUSD'] ? `$${prices.usdPrice['chinaUSD']}` : '$3.00'}
         </span></span>
        
       </div>
@@ -63,7 +63,7 @@ export default function Header() {
       <span className="inline-block w-1.5 h-1.5 bg-teal-400 rounded-full animate-pulse mt-[3px]"></span>
       <div className="flex justify-between w-full">
         <span className="font-medium text-[14px]">თურქეთიდან სახმელეთო გზით ტრანსპორტირების საფასური 1კგ: <span className="text-teal-400 font-bold ml-4">
-          {prices && prices['Turkey'] ? `₾${prices['Turkey']}` : '₾3'}
+          {prices  && prices.usdPrice && prices.usdPrice['turkeyUSD'] ? `$${prices.usdPrice['turkeyUSD']}` : '$1.00'}
         </span></span>
         
       </div>

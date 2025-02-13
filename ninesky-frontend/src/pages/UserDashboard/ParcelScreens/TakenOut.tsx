@@ -47,6 +47,7 @@ export default function TakenOut() {
   return (
 
    <>
+         <h1 className="text-[1.5rem] text-gray-400 pb-10">გატანილი</h1>
    {StorageData.map((val:any, index:number)=><ParcelsCard key={index} refetch={refetch} parcel={val } color={"#22c55e"} /> )}
    </>
   

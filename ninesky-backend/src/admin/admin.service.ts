@@ -177,6 +177,7 @@ export class AdminService implements OnModuleInit {
       Object.assign(flight, updateFlightDto);
       return await this.flightRepository.save(flight);
     } catch (error) {
+      console.log(error)
       if (error instanceof NotFoundException) {
         throw error;
       }

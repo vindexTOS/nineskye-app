@@ -26,7 +26,7 @@ export class AdminController {
     return this.adminService.createFlight(createFlightDto);
   }
 
-  @Patch('/update-flight:flightId')
+  @Put('/update-flight/:flightId')
   async updateFlight(
     @Param('flightId') flightId: string,
     @Body() updateFlightDto: UpdateFlightDto,

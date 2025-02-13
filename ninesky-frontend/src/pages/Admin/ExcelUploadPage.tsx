@@ -111,6 +111,7 @@ const {Text} = Typography
       return UpdateParcels(body);
     },
     onError(err) {
+      message.error("ვერ მოხერხდა განახლება")
       console.log(err);
     },
     onSuccess() {
@@ -132,6 +133,7 @@ const {Text} = Typography
   const handleCancel = () => {
     setIsModalOpen(false);
     setSelectedParcel(null);
+    setIsEditModalOpen(false)
   };
 
   const handleSingleParcelCancel = () => {
@@ -172,7 +174,7 @@ const {Text} = Typography
     setSelectedParcel(parcel);
     setIsDeclerationModalOpen(true);
   };
-  const handleUpdate = (values: any) => {
+  const handleUpdate = async (values: any) => {
     const convertedValues = {
       tracking_id: selectedParcel.id, // Keeping the original parcel ID
       payment_status: values.payment_status,
@@ -181,7 +183,7 @@ const {Text} = Typography
       weight: values.weight ? Number(values.weight) : undefined,
     };
   
-    updateMutation.mutate(convertedValues);
+   await updateMutation.mutateAsync(convertedValues);
   };
 
   const handleEditCancel = () => {
@@ -197,7 +199,7 @@ const {Text} = Typography
      },
     { title: 'წონა', dataIndex: 'weight', key: 'weight' },
     { title: 'ტრანსპორტირების ფასი', dataIndex: 'price', key: 'price' },
-    { title: 'ამანათის სტატუსი', dataIndex: 'parcelStatus', key: 'parcelStatus' },
+    { title: 'ამანათის სტატუსი', dataIndex: 'parcelStatus', key: 'parcelStatus' , render:(text:string) => text == 'Arrieved' ? "ჩამოსული" : "გატანილი" },
     
     {
       title: 'დეკლერაცია',
@@ -247,7 +249,7 @@ const {Text} = Typography
       ownerId: parcel.owner?.id || '',
       payment_status: parcel.payment_status || 'Unpaid',
       price: parcel.price || '',
-      shipping_status: parcel.shipping_status || '',
+      parcelStatus: parcel.parcelStatus || '',
       weight: parcel.weight || '',
     });
   };
@@ -351,25 +353,25 @@ const {Text} = Typography
         >
           <Form form={editForm} layout="vertical" onFinish={handleUpdate}>
             
-            <Form.Item label="Weight" name="weight">
+            <Form.Item label="წონა" name="weight">
               <Input type="number" />
             </Form.Item>
    
-            <Form.Item label="Price" name="price">
+            <Form.Item label="ფასი" name="price">
               <Input type="number" />
             </Form.Item>
             <Form.Item
-              label="parcelStatus"
+              label="ამანათის სტატუსი"
               name="parcelStatus"
               rules={[{ required: true, message: 'გთხოვთ შეიყვანოთ გადაზიდვის სტატუსი' }]}
             >
                  <Select>
-                <Select.Option value="Arrived">ჩამოსული</Select.Option>
+                <Select.Option value="Arrieved">ჩამოსული</Select.Option>
                 <Select.Option value="Taken">გატანილი</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item
-              label="Payment Status"
+              label="გადახდის სტატუსი"
               name="payment_status"
               rules={[{ required: true, message: 'გთხოვთ შეიყვანეთ გადახდის სტატუსი' }]}
             >
@@ -400,7 +402,20 @@ const {Text} = Typography
             >
               <Input />
             </Form.Item>
-
+            <Form.Item
+              label="თრექინგის ID"
+              name="tracking_id"
+              rules={[{ required: true, message: 'გთხოვთ შეიყვანეთ თრექინგ იდენტიფიკატორი' }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label="მომხმარებლის ID"
+              name="ownerId"
+              rules={[{ required: true, message: 'შეიყვანეთ მომხმარებლის იდენტიფიკატორი' }]}
+            >
+              <Input />
+            </Form.Item>
             <Form.Item label="წონა" name="weight">
               <Input type="number" />
             </Form.Item>

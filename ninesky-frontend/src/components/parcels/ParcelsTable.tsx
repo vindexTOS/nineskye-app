@@ -16,9 +16,7 @@ const ParcelsTable: FC<ParcelsPropType> = ({ data, color, title, refetch }) => {
 
   // Update flights whenever `data` changes
   React.useEffect(() => {
-    // console.log(data)
     setFlights(data || []);
-    console.log(data)
   }, [data]);
 
   // Handle page change per flight
@@ -37,31 +35,31 @@ const ParcelsTable: FC<ParcelsPropType> = ({ data, color, title, refetch }) => {
           const currentPage = currentPages[flightId] || 1;
 
           // Pagination Logic
-          const startIndex = (currentPage - 1) * pageSize;
-          const currentParcels = parcels.slice(startIndex, startIndex + pageSize);
-          const totalPages = Math.ceil(parcels.length / pageSize);
+          const filteredParcels = parcels.filter((val: any) => val.parcelStatus !== 'Taken');
+          const startIndex = (currentPage - 1) * pageSize; // Corrected to use currentPage
+          const currentParcels = filteredParcels.slice(startIndex, startIndex + pageSize);
+          const totalPages = Math.ceil(filteredParcels.length / pageSize);
 
           return (
             <div key={flightId} className="border border-gray-200 p-5 rounded-lg shadow-md ">
               {/* Flight Details */}
-              <div className="bg-gray-100 p-4 rounded-md mb-4  py-5 ">
-  <h2 className="text-lg font-semibold text-gray-700 mb-2">✈ ფრენის დეტალები</h2>
-  <div className="flex flex-wrap items-center text-sm text-gray-600 space-x-4  flex items-center justify-between">
-    <span>
-      <span className="font-semibold">ფრენის ID:</span> {flight.flight_id}
-    </span>
-    <span>
-      <span className="font-semibold">ჩამოსვლის დრო:</span> {new Date(flight.arrived_at).toISOString().split('T')[0]}
-    </span>
-    <span>
-      <span className="font-semibold">ქვეყანა:</span> {flight.flight_from}
-    </span>
-    <span>
-      <span className="font-semibold">გადაზიდვის სტატუსი:</span> {shippingStatusTranslation[flight.shipping_status] || flight.shipping_status }
-    </span>
-  </div>
-</div>
-
+              <div className="bg-gray-100 p-4 rounded-md mb-4 py-5">
+                <h2 className="text-lg font-semibold text-gray-700 mb-2">✈ ფრენის დეტალები</h2>
+                <div className="flex flex-wrap items-center text-sm text-gray-600 space-x-4  flex items-center justify-between">
+                  <span>
+                    <span className="font-semibold">ფრენის ID:</span> {flight.flight_id}
+                  </span>
+                  <span>
+                    <span className="font-semibold">ჩამოსვლის დრო:</span> {new Date(flight.arrived_at).toISOString().split('T')[0]}
+                  </span>
+                  <span>
+                    <span className="font-semibold">ქვეყანა:</span> {flight.flight_from}
+                  </span>
+                  <span>
+                    <span className="font-semibold">გადაზიდვის სტატუსი:</span> {shippingStatusTranslation[flight.shipping_status] || flight.shipping_status}
+                  </span>
+                </div>
+              </div>
 
               {/* Parcels List */}
               <div className="space-y-4">

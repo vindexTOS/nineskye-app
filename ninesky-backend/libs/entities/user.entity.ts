@@ -34,7 +34,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: AccessLevel,
-    default: AccessLevel.USER,
+    default: AccessLevel.ZERO,
   })
   accessLevel: AccessLevel;
 

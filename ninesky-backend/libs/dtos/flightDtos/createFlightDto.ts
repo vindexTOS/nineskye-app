@@ -29,4 +29,8 @@ export class UpdateFlightDto {
   @IsOptional()
   @IsDateString()
   arrived_at?: string;
+
+  @IsOptional()
+ 
+  flight_id?: string;
 }

@@ -7,6 +7,6 @@ export enum FlightFrom {
     flight_id: string;
     flight_from: FlightFrom;
     arrived_at: string;  
-  
+    shipping_status?:string
   }
   

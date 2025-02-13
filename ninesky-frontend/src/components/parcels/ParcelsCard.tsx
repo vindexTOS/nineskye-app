@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Button, Input, message } from 'antd';
+import { Modal, Button, Input, message, Select } from 'antd';
 import axios from 'axios';
 import { envirement } from '../../envirement/env';
 import Cookies from 'universal-cookie';
@@ -13,8 +13,13 @@ export default function ParcelsCard({ parcel, color, refetch }: { parcel: any; c
   const [type, setType] = useState('');
   const [website, setWebsite] = useState('');
   const [comment, setComment] = useState('');
-  const [itemPrice, setItemPrice] = useState(0);
+  const [priceValue, setPriceValue] = useState('');
+  // currency holds the selected currency code/value
+  const [currency, setCurrency] = useState(); // default: ლარი
+  // itemPrice holds the combined string (e.g., "100 GEL")
+  const [itemPrice, setItemPrice] = useState('');
 
+ 
   // State for update modal
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [updateSelectedFile, setUpdateSelectedFile] = useState<File | null>(null);
@@ -54,10 +59,7 @@ console.log(parcel)
     formData.append('website', website);
     formData.append('comment', comment);
 
-    if (itemPrice >= 300 && !selectedFile) {
-      message.error('ატვირთეთ ინვოისი');
-      return;
-    }
+    
     if (selectedFile) formData.append('file', selectedFile);
 
     try {
@@ -135,6 +137,83 @@ console.log(parcel)
     }
   };
 
+
+
+
+// 
+
+const categories = [
+  { value: 'ტექნოლოგიური', label: 'ტექნოლოგიური' },
+  { value: 'ოფისის მასალები', label: 'ოფისის მასალები' },
+  { value: 'საოჯახო ნივთები', label: 'საოჯახო ნივთები' },
+  { value: 'კოსმეტიკა', label: 'კოსმეტიკა' },
+  { value: 'თამაშები', label: 'თამაშები' },
+  { value: 'სპორტული აქსესუარები', label: 'სპორტული აქსესუარები' },
+  { value: 'კულინარიული ნივთები', label: 'კულინარიული ნივთები' },
+  { value: 'ავტომობილური ნაწილები', label: 'ავტომობილური ნაწილები' },
+  { value: 'მედიცინის ნივთები', label: 'მედიცინის ნივთები' },
+  { value: 'სხვა', label: 'სხვა' },
+];
+
+const [selectedCategory, setSelectedCategory] = useState('');
+const handleCategoryChange = (value:any) => {
+  setSelectedCategory(value);
+  // If the user selects any option except "სხვა", update the type state directly.
+  if (value !== 'სხვა') {
+    setType(value);
+  } else {
+    // Reset the type state if "სხვა" is selected so the user can type a new value.
+    setType('');
+  }
+};
+
+const handleInputChange = (e:any) => {
+  setType(e.target.value);
+};
+// 
+
+const currencies = [
+  // { value: 'EUR', label: 'ევრო' },
+  { value: 'USD', label: 'დოლარი' },
+  { value: 'CNY', label: 'ჩინური იანი' },
+  { value: 'TRY', label: 'თურქული ლარი' },
+  // { value: 'GEL', label: 'ლარი' },
+  // { value: 'GBP', label: 'ბრიტანული ფუნტი' },
+  // { value: 'JPY', label: 'იაპონური იენი' },
+  // { value: 'AUD', label: 'ავსტრალიური დოლარი' },
+  // { value: 'CAD', label: 'კანადური დოლარი' },
+  // { value: 'CHF', label: 'შვეიცარიელი ფრანკი' },
+];
+
+const handlePriceChange = (e:any) => {
+  const numberVal = e.target.value;
+  setPriceValue(numberVal);
+  setItemPrice(`${numberVal} ${currency}`);
+};
+
+// When the currency changes, update the state and the combined itemPrice string
+const handleCurrencyChange = (value:any) => {
+  setCurrency(value);
+  setItemPrice(`${priceValue} ${value}`);
+};
+//  jort softs zdie
+
+
+// New state for the update modal category selection
+const [updateSelectedCategory, setUpdateSelectedCategory] = useState('');
+
+// Handler for the update modal category change
+const handleUpdateCategoryChange = (value: any) => {
+  setUpdateSelectedCategory(value);
+  // If the value is not 'სხვა', update updateType directly
+  if (value !== 'სხვა') {
+    setUpdateType(value);
+  } else {
+    // Clear updateType when 'სხვა' is selected so the user can type a custom value
+    setUpdateType('');
+  }
+};
+
   return (
     <div className="bg-white shadow-md rounded-lg mb-4 overflow-hidden">
       {/* Upper Section */}
@@ -201,34 +280,68 @@ console.log(parcel)
       <Modal visible={isModalOpen} onCancel={closeModal} footer={null} title="დეკლარაციის ატვირთვა">
         <h2 className="text-xl mb-4">დეკლერაცის ატვირთვა (PDF)</h2>
         <div className="mb-4">
+        <div>
+      <Select
+        placeholder="აირჩიეთ კატეგორია"
+        value={selectedCategory || undefined}
+        onChange={handleCategoryChange}
+        style={{ width: '100%', marginBottom: 8 }}
+      >
+        {categories.map((cat) => (
+          <Select.Option key={cat.value} value={cat.value}>
+            {cat.label}
+          </Select.Option>
+        ))}
+      </Select>
+
+      {/* When "სხვა" (Other) is selected, show an input to type the custom category */}
+      {selectedCategory === 'სხვა' && (
+        <Input
+          placeholder="გთხოვთ შეიყვანეთ კატეგორია"
+          value={type}
+          onChange={handleInputChange}
+          style={{ width: '100%' }}
+        />
+      )}
+    </div>
           <Input
-            placeholder="Type (e.g., Technological)"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="mb-2"
-          />
-          <Input
-            placeholder="Website (e.g., Taobao, eBay)"
+            placeholder="ვებ საიტი (e.g., Taobao, eBay)"
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             className="mb-2"
           />
-          <Input
-            placeholder="ფასი (ლარსი)"
-            value={itemPrice}
-            type="number"
-            onChange={(e) => setItemPrice(Number(e.target.value))}
-            className="mb-2"
-          />
+          {/*  */}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+  <Input
+    placeholder="ფასი (რიცხვით)"
+    value={priceValue}
+    type="number"
+    onChange={handlePriceChange}
+    style={{ flex: 1 }}  // takes remaining space
+  />
+  <Select
+    placeholder="აირჩიეთ ვალუტა"
+    value={currency}
+    onChange={handleCurrencyChange}
+    style={{ width: 160 }}  // fixed width for currency select
+  >
+    {currencies.map((curr) => (
+      <Select.Option key={curr.value} value={curr.value}>
+        {curr.label}
+      </Select.Option>
+    ))}
+  </Select>
+</div>
+    {/*  */}
           <Input.TextArea
-            placeholder="Comment"
+            placeholder="დამატებითი ინფორმაცია"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             className="mb-2"
           />
-          {itemPrice >= 300 && (
-            <input type="file" accept="application/pdf" onChange={handleFileChange} className="mb-2" />
-          )}
+          <div className="flex flex-col ">
+            <label htmlFor='invoice'>ინვოისი</label>
+     <input type="file"  id='invoice' accept="application/pdf" onChange={handleFileChange} className="mb-2" /></div>
         </div>
         <div className="flex justify-end gap-4 mt-4">
           <Button className="bg-gray-400 text-white" onClick={closeModal}>
@@ -254,7 +367,7 @@ console.log(parcel)
             </div>
             <div className="flex items-center">
               <span className="font-semibold w-1/3">ფასი:</span>
-              <span className="w-2/3">₾ {selectedParcel.declaration.price}</span>
+              <span className="w-2/3">{selectedParcel.declaration.price}</span>
             </div>
             <div className="flex items-center">
               <span className="font-semibold w-1/3">Website:</span>
@@ -294,47 +407,104 @@ console.log(parcel)
       </Modal>
 
       {/* Modal for Updating Declaration */}
-      <Modal visible={isUpdateModalOpen} onCancel={() => setIsUpdateModalOpen(false)} footer={null} title="დეკლარაციის განახლება">
-        <h2 className="text-xl mb-4">დეკლერაცის ატვირთვა (PDF)</h2>
-        <div className="mb-4">
-          <Input
-            placeholder="Type (e.g., Technological)"
-            value={updateType}
-            onChange={(e) => setUpdateType(e.target.value)}
-            className="mb-2"
-          />
-          <Input
-            placeholder="Website (e.g., Taobao, eBay)"
-            value={updateWebsite}
-            onChange={(e) => setUpdateWebsite(e.target.value)}
-            className="mb-2"
-          />
-          <Input
-            placeholder="ფასი (ლარსი)"
-            value={updateItemPrice}
-            type="number"
-            onChange={(e) => setUpdateItemPrice(Number(e.target.value))}
-            className="mb-2"
-          />
-          <Input.TextArea
-            placeholder="Comment"
-            value={updateComment}
-            onChange={(e) => setUpdateComment(e.target.value)}
-            className="mb-2"
-          />
-          {updateItemPrice >= 300 && (
-            <input type="file" accept="application/pdf" onChange={handleUpdateFileChange} className="mb-2" />
-          )}
-        </div>
-        <div className="flex justify-end gap-4 mt-4">
-          <Button className="bg-gray-400 text-white" onClick={() => setIsUpdateModalOpen(false)}>
-            გაუქმება
-          </Button>
-          <Button className="bg-blue-500 text-white hover:bg-blue-600" type="primary" onClick={handleUpdate}>
-            ატვირთვა
-          </Button>
-        </div>
-      </Modal>
+      <Modal
+  visible={isUpdateModalOpen}
+  onCancel={() => setIsUpdateModalOpen(false)}
+  footer={null}
+  title="დეკლარაციის განახლება"
+>
+  <h2 className="text-xl mb-4">დეკლერაცის განახლება (PDF)</h2>
+  <div className="mb-4">
+    {/* Optionally include category selection if needed */}
+    <div>
+    <Select
+  placeholder="აირჩიეთ კატეგორია"
+  value={selectedCategory || undefined}
+  onChange={handleCategoryChange}
+  style={{ width: '100%', marginBottom: 8 }}
+>
+  {categories.map((cat) => (
+    <Select.Option key={cat.value} value={cat.value}>
+      {cat.label}
+    </Select.Option>
+  ))}
+</Select>
+{updateSelectedCategory === 'სხვა' && (
+  <Input
+    placeholder="გთხოვთ შეიყვანეთ კატეგორია"
+    value={updateType}
+    onChange={(e) => setUpdateType(e.target.value)}
+    style={{ width: '100%' }}
+  />
+)}
+    </div>
+
+    <Input
+      placeholder="ვებ საიტი (e.g., Taobao, eBay)"
+      value={updateWebsite}
+      onChange={(e) => setUpdateWebsite(e.target.value)}
+      className="mb-2"
+    />
+
+    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      <Input
+        placeholder="ფასი (რიცხვით)"
+        value={updateItemPrice}
+        type="number"
+        onChange={(e) => setUpdateItemPrice(Number(e.target.value))}
+        style={{ flex: 1 }}
+      />
+<Select
+  placeholder="აირჩიეთ კატეგორია"
+  value={currency || undefined}
+  onChange={handleUpdateCategoryChange}
+  style={{ width:150, marginBottom: 8 }}
+>
+{currencies.map((cat) => (
+
+<Select.Option key={cat.value} value={cat.value}>
+  {cat.label}
+</Select.Option>
+))}
+</Select>
+    </div>
+
+    <Input.TextArea
+      placeholder="დამატებითი ინფორმაცია"
+      value={updateComment}
+      onChange={(e) => setUpdateComment(e.target.value)}
+      className="mb-2"
+    />
+
+    <div className="flex flex-col">
+      <label htmlFor="updateInvoice">ინვოისი</label>
+      <input
+        type="file"
+        id="updateInvoice"
+        accept="application/pdf"
+        onChange={handleUpdateFileChange}
+        className="mb-2"
+      />
+    </div>
+  </div>
+
+  <div className="flex justify-end gap-4 mt-4">
+    <Button
+      className="bg-gray-400 text-white"
+      onClick={() => setIsUpdateModalOpen(false)}
+    >
+      გაუქმება
+    </Button>
+    <Button
+      className="bg-blue-500 text-white hover:bg-blue-600"
+      type="primary"
+      onClick={handleUpdate}
+    >
+      ატვირთვა
+    </Button>
+  </div>
+</Modal>
+
     </div>
   );
 }

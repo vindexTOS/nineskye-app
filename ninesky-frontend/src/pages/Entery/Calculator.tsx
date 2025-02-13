@@ -42,12 +42,13 @@ export default function Calculator() {
 
     // Determine the unit price based on the selected country using referencePrices.
     let unitPrice = 0;
+    console.log(referencePrices)
     if (referencePrices) {
       if (selectedCountry.toLowerCase() === 'turkey') {
-        unitPrice = parseFloat(referencePrices.Turkey);
+        unitPrice = parseFloat(referencePrices.usdPrice.turkeyUSD);
       } else {
         // For both "china" and "china-air", use China price.
-        unitPrice = parseFloat(referencePrices.China);
+        unitPrice = parseFloat(referencePrices.usdPrice.chinaUSD);
       }
     } else {
       // Fallback defaults if referencePrices isn't loaded yet.
@@ -171,7 +172,7 @@ export default function Calculator() {
 
       {price !== '' && (
         <div className="mt-6 text-center text-xl font-bold">
-          გამოთვლილი ფასი: <span className="text-yellow-400">₾{price}</span>
+          გამოთვლილი ფასი: <span className="text-yellow-400">${price}</span>
         </div>
       )}
     </div>
