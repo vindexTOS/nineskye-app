@@ -294,16 +294,47 @@ __decorate([
 /*!******************************************************!*\
   !*** ./libs/dtos/parcelDtos.ts/update-parcel.dto.ts ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.UpdateParcelDto = void 0;
-const mapped_types_1 = __webpack_require__(/*! @nestjs/mapped-types */ "@nestjs/mapped-types");
-const create_parcel_dto_1 = __webpack_require__(/*! ./create-parcel.dto */ "./libs/dtos/parcelDtos.ts/create-parcel.dto.ts");
-class UpdateParcelDto extends (0, mapped_types_1.PartialType)(create_parcel_dto_1.CreateParcelsDto) {
+const class_validator_1 = __webpack_require__(/*! class-validator */ "class-validator");
+const payment_status_enum_1 = __webpack_require__(/*! libs/enums/payment.status.enum */ "./libs/enums/payment.status.enum.ts");
+const parcelstatus_enum_1 = __webpack_require__(/*! libs/enums/parcelstatus.enum */ "./libs/enums/parcelstatus.enum.ts");
+class UpdateParcelDto {
 }
 exports.UpdateParcelDto = UpdateParcelDto;
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], UpdateParcelDto.prototype, "weight", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], UpdateParcelDto.prototype, "price", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(payment_status_enum_1.PaymentType),
+    __metadata("design:type", typeof (_a = typeof payment_status_enum_1.PaymentType !== "undefined" && payment_status_enum_1.PaymentType) === "function" ? _a : Object)
+], UpdateParcelDto.prototype, "payment_status", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(parcelstatus_enum_1.parcelStatus),
+    __metadata("design:type", typeof (_b = typeof parcelstatus_enum_1.parcelStatus !== "undefined" && parcelstatus_enum_1.parcelStatus) === "function" ? _b : Object)
+], UpdateParcelDto.prototype, "parcelStatus", void 0);
 
 
 /***/ }),
@@ -524,7 +555,7 @@ const user_entity_1 = __webpack_require__(/*! ./user.entity */ "./libs/entities/
 const declaration_entity_1 = __webpack_require__(/*! ./declaration.entity */ "./libs/entities/declaration.entity.ts");
 const payment_status_enum_1 = __webpack_require__(/*! libs/enums/payment.status.enum */ "./libs/enums/payment.status.enum.ts");
 const flight_entity_1 = __webpack_require__(/*! ./flight.entity */ "./libs/entities/flight.entity.ts");
-const parcelStatus_enum_1 = __webpack_require__(/*! libs/enums/parcelStatus.enum */ "./libs/enums/parcelStatus.enum.ts");
+const parcelstatus_enum_1 = __webpack_require__(/*! libs/enums/parcelstatus.enum */ "./libs/enums/parcelstatus.enum.ts");
 let Parcel = class Parcel {
 };
 exports.Parcel = Parcel;
@@ -551,8 +582,8 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)({
         type: 'enum',
-        enum: parcelStatus_enum_1.parcelStatus,
-        default: parcelStatus_enum_1.parcelStatus.ARRIEVED,
+        enum: parcelstatus_enum_1.parcelStatus,
+        default: parcelstatus_enum_1.parcelStatus.ARRIEVED,
     }),
     __metadata("design:type", String)
 ], Parcel.prototype, "parcelStatus", void 0);
@@ -913,8 +944,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AccessLevel = void 0;
 var AccessLevel;
 (function (AccessLevel) {
-    AccessLevel[AccessLevel["USER"] = 0] = "USER";
-    AccessLevel[AccessLevel["MODERATOR"] = 1] = "MODERATOR";
+    AccessLevel[AccessLevel["ZERO"] = 0] = "ZERO";
+    AccessLevel[AccessLevel["USER"] = 1] = "USER";
     AccessLevel[AccessLevel["ADMIN"] = 2] = "ADMIN";
     AccessLevel[AccessLevel["SUPER_ADMIN"] = 3] = "SUPER_ADMIN";
 })(AccessLevel || (exports.AccessLevel = AccessLevel = {}));
@@ -940,9 +971,9 @@ var FlightFrom;
 
 /***/ }),
 
-/***/ "./libs/enums/parcelStatus.enum.ts":
+/***/ "./libs/enums/parcelstatus.enum.ts":
 /*!*****************************************!*\
-  !*** ./libs/enums/parcelStatus.enum.ts ***!
+  !*** ./libs/enums/parcelstatus.enum.ts ***!
   \*****************************************/
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -990,7 +1021,6 @@ var ShippingStatus;
     ShippingStatus["BROUGHT"] = "Brought";
     ShippingStatus["SHIPPED"] = "Shipped";
     ShippingStatus["ARRIVED"] = "Arrived";
-    ShippingStatus["TAKEN"] = "Taken";
 })(ShippingStatus || (exports.ShippingStatus = ShippingStatus = {}));
 
 
@@ -1115,20 +1145,20 @@ let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
     }
+    getFlights(data) {
+        return this.adminService.getFlightsPaginated(data.page, data.limit, data.flight_id);
+    }
     async createFlight(createFlightDto) {
         return this.adminService.createFlight(createFlightDto);
     }
     async updateFlight(flightId, updateFlightDto) {
         return this.adminService.updateFlight(flightId, updateFlightDto);
     }
-    getFlights(data) {
-        return this.adminService.getFlightsPaginated(data.page, data.limit, data.flight_id);
+    getParcels(data) {
+        return this.adminService.getAllParcel(data);
     }
     async createParcels(createParcelsDto) {
         return this.adminService.createParcels(createParcelsDto);
-    }
-    getParcels(data) {
-        return this.adminService.getAllParcel(data);
     }
     updateParcel(id, updateParcelDto) {
         return this.adminService.updateParcel(id, updateParcelDto);
@@ -1157,6 +1187,13 @@ let AdminController = class AdminController {
 };
 exports.AdminController = AdminController;
 __decorate([
+    (0, common_1.Get)('/get-flights'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getFlights", null);
+__decorate([
     (0, common_1.Post)('/create-flight'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -1172,26 +1209,19 @@ __decorate([
     __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
 ], AdminController.prototype, "updateFlight", null);
 __decorate([
-    (0, common_1.Get)('/get-flights'),
+    (0, common_1.Get)('/get-parcels'),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [typeof (_f = typeof getParcelDto !== "undefined" && getParcelDto) === "function" ? _f : Object]),
     __metadata("design:returntype", void 0)
-], AdminController.prototype, "getFlights", null);
+], AdminController.prototype, "getParcels", null);
 __decorate([
     (0, common_1.Post)('/create-parcels'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_f = typeof create_parcel_dto_1.CreateParcelsDto !== "undefined" && create_parcel_dto_1.CreateParcelsDto) === "function" ? _f : Object]),
-    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+    __metadata("design:paramtypes", [typeof (_g = typeof create_parcel_dto_1.CreateParcelsDto !== "undefined" && create_parcel_dto_1.CreateParcelsDto) === "function" ? _g : Object]),
+    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
 ], AdminController.prototype, "createParcels", null);
-__decorate([
-    (0, common_1.Get)('/get-parcels'),
-    __param(0, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [typeof (_h = typeof getParcelDto !== "undefined" && getParcelDto) === "function" ? _h : Object]),
-    __metadata("design:returntype", void 0)
-], AdminController.prototype, "getParcels", null);
 __decorate([
     (0, common_1.Put)('/update-parcel/:id'),
     __param(0, (0, common_1.Param)('id')),
@@ -1383,6 +1413,9 @@ let AdminService = class AdminService {
                 ZIP: "34122"
             },
         ];
+        dummyData.forEach((val) => {
+            this.createAddress(val);
+        });
     }
     async getFlightsPaginated(page = 1, limit = 10, flightId) {
         try {
@@ -2397,7 +2430,6 @@ let MailerService = class MailerService {
         });
     }
     async sendActivationEmail(token, email) {
-        console.log("შემოსვლა სენდეში");
         try {
             const mailOptions = {
                 from: process.env.EMAIL_FROM,
@@ -2420,7 +2452,6 @@ let MailerService = class MailerService {
         }
     }
     async sendPasswordRecoverylink(token, email) {
-        console.log("შემოსვლა სენდეში");
         try {
             const mailOptions = {
                 from: process.env.EMAIL_FROM,

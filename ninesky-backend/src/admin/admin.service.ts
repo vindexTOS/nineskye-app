@@ -18,6 +18,7 @@ import { Address } from 'libs/entities/address.entety';
 import { CreateAddressDto } from 'libs/dtos/addressDto/addressDto';
 import { CreateParcelsDto } from 'libs/dtos/parcelDtos.ts/create-parcel.dto';
 import { PaymentType } from 'libs/enums/payment.status.enum';
+import { UpdateParcelDto } from 'libs/dtos/parcelDtos.ts/update-parcel.dto';
 
 @Injectable()
 export class AdminService implements OnModuleInit {
@@ -82,9 +83,9 @@ export class AdminService implements OnModuleInit {
 
     ];
 
-    // dummyData.forEach((val: CreateAddressDto) => {
-    //   this.createAddress(val)
-    // })
+    dummyData.forEach((val: CreateAddressDto) => {
+      this.createAddress(val)
+    })
 
   }
 
@@ -282,7 +283,7 @@ export class AdminService implements OnModuleInit {
     }
 
 }
-  async updateParcel(id: string, updateParcelDto: any): Promise<Parcel> {
+  async updateParcel(id: string, updateParcelDto:UpdateParcelDto): Promise<Parcel> {
     try {
 
       const parcel = await this.parcelRepository.preload({

@@ -4,7 +4,8 @@ import { ShippingStatus } from 'libs/enums/shipping.status.enum';
 import { Declaration } from './declaration.entity';
 import { PaymentType } from 'libs/enums/payment.status.enum';
 import { Flight } from './flight.entity';
-import { parcelStatus } from 'libs/enums/parcelStatus.enum';
+import { parcelStatus } from 'libs/enums/parcelstatus.enum'
+
 
 @Entity()
 export class Parcel {

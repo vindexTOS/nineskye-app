@@ -19,7 +19,6 @@ export class MailerService {
   }
 
   async sendActivationEmail(token : string , email : string): Promise<void> {
-    console.log("შემოსვლა სენდეში")
     try {
       const mailOptions = {
         from: process.env.EMAIL_FROM,  
@@ -46,7 +45,6 @@ export class MailerService {
 }
 
 async sendPasswordRecoverylink(token : string , email : string): Promise<void> {
-  console.log("შემოსვლა სენდეში")
   try {
     const mailOptions = {
       from: process.env.EMAIL_FROM,  

@@ -16,6 +16,11 @@ export class AdminController {
   ) { }
 
 
+  @Get('/get-flights')
+  getFlights(@Query() data:  { page: number , limit : number, flight_id : string}){
+    return this.adminService.getFlightsPaginated(data.page, data.limit, data.flight_id)
+  }
+
   @Post('/create-flight')
   async createFlight(@Body() createFlightDto: CreateFlightDto): Promise<Flight> {
     return this.adminService.createFlight(createFlightDto);
@@ -29,20 +34,17 @@ export class AdminController {
     return this.adminService.updateFlight(flightId, updateFlightDto);
   }
 
-  @Get('/get-flights')
-  getFlights(@Query() data:  { page: number , limit : number, flight_id : string}){
-    return this.adminService.getFlightsPaginated(data.page, data.limit, data.flight_id)
+    
+  @Get('/get-parcels')
+  getParcels(@Query() data: getParcelDto) {
+    return this.adminService.getAllParcel(data)
   }
   
   @Post('/create-parcels')
   async createParcels(@Body() createParcelsDto: CreateParcelsDto): Promise<Parcel[]> {
     return this.adminService.createParcels(createParcelsDto);
   }
-  
-  @Get('/get-parcels')
-  getParcels(@Query() data: getParcelDto) {
-    return this.adminService.getAllParcel(data)
-  }
+
  @Put('/update-parcel/:id')
  updateParcel(@Param('id') id: string, @Body() updateParcelDto: UpdateParcelDto) {
    return this.adminService.updateParcel(id, updateParcelDto);

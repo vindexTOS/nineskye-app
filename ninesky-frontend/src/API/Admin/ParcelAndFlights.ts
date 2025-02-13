@@ -97,10 +97,9 @@ export const CreateParcles = async (body: CreateParcelsType) => {
 };
 
 export const UpdateParcels = async (body: any) => {
-  console.log(body)
   const id = body.tracking_id
   delete body.declaration;
-
+  delete body.tracking_id
   try {
     const token = cookies.get("token");
     const res: any = await ApiManager(`admin/update-parcel/${id}`, {

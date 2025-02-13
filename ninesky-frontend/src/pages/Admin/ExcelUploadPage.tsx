@@ -175,10 +175,9 @@ const {Text} = Typography
   const handleUpdate = (values: any) => {
     const convertedValues = {
       tracking_id: selectedParcel.id, // Keeping the original parcel ID
-      ownerId: selectedParcel.owner?.id, // Keeping the original owner ID
       payment_status: values.payment_status,
       price: values.price ? Number(values.price) : undefined,
-      shipping_status: values.shipping_status,
+      parcelStatus: values.parcelStatus,
       weight: values.weight ? Number(values.weight) : undefined,
     };
   
@@ -190,29 +189,16 @@ const {Text} = Typography
     setSelectedParcel(null);
   };
  useEffect(()=>{
-//  console.log(parcelsData?.parcels)
  },[parcelsData?.parcels])
   const columns = [
     { title: 'tracking ID', dataIndex: 'id', key: 'id' },
-    // { title: 'Tracking ID', dataIndex: 'tracking_id', key: 'id' },
-    // {
-    //   title: 'გადაზიდვის სტატუსი',
-    //   dataIndex: 'shipping_status',
-    //   key: 'shipping_status',
-    //   render: (text:string) => shippingStatusTranslation[text] || text,  
-    // },
     { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status', 
       render: (text: string) => paymentStatusTranslation[text?.trim()] || text || 'უცნობი',
-
      },
     { title: 'წონა', dataIndex: 'weight', key: 'weight' },
-    { title: 'ფასი', dataIndex: 'price', key: 'price' },
-    {
-      title: 'თარიღი',
-      dataIndex: 'arrived_at',
-      key: 'arrived_at',
-      // render: (text:any) => new Date(text).toISOString().split('T')[0],  
-    },
+    { title: 'ტრანსპორტირების ფასი', dataIndex: 'price', key: 'price' },
+    { title: 'ამანათის სტატუსი', dataIndex: 'parcelStatus', key: 'parcelStatus' },
+    
     {
       title: 'დეკლერაცია',
       key: 'declaration',
@@ -373,13 +359,11 @@ const {Text} = Typography
               <Input type="number" />
             </Form.Item>
             <Form.Item
-              label="Shipping Status"
-              name="shipping_status"
+              label="parcelStatus"
+              name="parcelStatus"
               rules={[{ required: true, message: 'გთხოვთ შეიყვანოთ გადაზიდვის სტატუსი' }]}
             >
                  <Select>
-                <Select.Option value="Brought">საწყობში</Select.Option>
-                <Select.Option value="Shipped">გამოგზავნილი</Select.Option>
                 <Select.Option value="Arrived">ჩამოსული</Select.Option>
                 <Select.Option value="Taken">გატანილი</Select.Option>
               </Select>
@@ -416,24 +400,9 @@ const {Text} = Typography
             >
               <Input />
             </Form.Item>
-          
- 
-            <Form.Item
-              label="თრექინგის ID"
-              name="tracking_id"
-              rules={[{ required: true, message: 'გთხოვთ შეიყვანეთ თრექინგ იდენტიფიკატორი' }]}
-            >
-              <Input />
-            </Form.Item>
+
             <Form.Item label="წონა" name="weight">
               <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="მომხმარებლის ID"
-              name="ownerId"
-              rules={[{ required: true, message: 'შეიყვანეთ მომხმარებლის იდენტიფიკატორი' }]}
-            >
-              <Input />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={createMutation.isPending} className="w-full">
