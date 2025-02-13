@@ -77,17 +77,53 @@ export class UserService {
 
 
   async updateProfile(id: string, data: UpdateUserDto) {
-    const { email, password, personal_number, office, first_name, last_name, phone_number, city, address } = data;
-    console.log(data)
+    console.log("YLE");
+    console.log(data);
+  
+    // Find the existing user with its details
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['userDetails'], // Ensures userDetails are loaded
-
+      relations: ['userDetails'],
     });
-    const createdUser = this.userRepository.create({ email, password, userDetails: { first_name, office, personal_number, last_name, phone_number, city, address } })
-    await this.userRepository.save(createdUser);
-    return user;
+  
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+  
+    // Update the main user fields
+    if (data.email !== undefined) {
+      user.email = data.email;
+    }
+  
+    // Update the userDetails fields
+    if (data.first_name !== undefined) {
+      user.userDetails.first_name = data.first_name;
+    }
+    if (data.last_name !== undefined) {
+      user.userDetails.last_name = data.last_name;
+    }
+    if (data.phone_number !== undefined) {
+      user.userDetails.phone_number = data.phone_number;
+    }
+    if (data.personal_number !== undefined) {
+      user.userDetails.personal_number = data.personal_number;
+    }
+    if (data.office !== undefined) {
+      user.userDetails.office = data.office;
+    }
+    if (data.city !== undefined) {
+      user.userDetails.city = data.city;
+    }
+    if (data.address !== undefined) {
+      user.userDetails.address = data.address;
+    }
+  
+    // Note: We deliberately don't update the password field.
+  
+    // Save the updated user
+    return await this.userRepository.save(user);
   }
+  
 
 
   async createDeclaration(createDeclarationDto: CreateDeclarationDto) {
