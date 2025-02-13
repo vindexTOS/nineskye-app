@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, InternalServerErrorException, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'libs/entities/user.entity';
 import { EntityManager, Repository } from 'typeorm';
@@ -88,6 +88,78 @@ export class AdminService implements OnModuleInit {
     })
 
   }
+
+  async getDocument(flightId: string) {
+    try {
+      if(!flightId ) throw new BadGatewayException()
+      return await this.entityManager.transaction(async (manager) => {
+        // Find all parcels with the given flightId and load the necessary relations
+        const parcels = await manager.find(Parcel, {
+          where: { flight: { flight_id: flightId } },
+          relations: ['flight', 'owner', 'owner.userDetails', 'declaration'],
+        });
+  
+        if (!parcels || parcels.length === 0) {
+          throw new NotFoundException(
+            `No parcels found for flight ID ${flightId}`,
+          );
+        }
+  
+        const mainData = parcels.map((parcel) => {
+          // Check if userDetails exist to avoid runtime errors
+          if (!parcel.owner.userDetails) {
+            throw new BadRequestException(`User details missing for parcel ID ${parcel.id}`);
+          }
+  
+          return {
+            tracking_id: parcel.id,
+            personal_number: parcel.owner.userDetails.personal_number,
+            first_name: parcel.owner.userDetails.first_name,
+            last_name: parcel.owner.userDetails.last_name,
+            phone_number: parcel.owner.userDetails.phone_number,
+            address: `${parcel.owner.userDetails.city}, ${parcel.owner.userDetails.address}`,
+            country_code: parcel.flight.flight_from === 'China' ? 156 : 792,
+            weight: parcel?.weight,
+            gz_type: 0,
+            dab_type: 0,
+            registration_date: new Date(),
+            arrived_date: parcel.flight.arrived_at,
+            document_number: '',
+            tranporting_cost_1: parcel.price,
+            tranporting_cost_1_currency: 'GEL',
+            tranporting_cost_2: 0,
+            tranporting_cost_2_currency: 'USD',
+            tranporting_cost_off: 0,
+            tranporting_cost_off_currency: 'USD',
+            sender_website: parcel.declaration?.website,
+            comment: parcel.declaration?.comment,
+            race_id: parcel.flight.flight_id,
+            resident: 1,
+          };
+        });
+  
+        return mainData;
+      });
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error; // Rethrow known exceptions
+      }
+  
+      // Handle unexpected errors
+      console.error('Error fetching document data:', error);
+      throw new InternalServerErrorException('An unexpected error occurred while fetching the document data.');
+    }
+  }
+  
+
+
+
+
+
+
+
+
+
 
 
   async getFlightsPaginated(
@@ -344,8 +416,7 @@ export class AdminService implements OnModuleInit {
             // Apply pagination.
             query.skip((page - 1) * limit).take(limit);
             const users = await query.getMany();
-      console.log('Users fetched:', users);
-  
+
       const totalPages = Math.ceil(totalCount / limit);
   
       // Map users and force evaluation of balance.

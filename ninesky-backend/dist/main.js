@@ -1127,6 +1127,9 @@ let AdminController = class AdminController {
     constructor(adminService) {
         this.adminService = adminService;
     }
+    getDocument(data) {
+        return this.adminService.getDocument(data.flight_id);
+    }
     getFlights(data) {
         return this.adminService.getFlightsPaginated(data.page, data.limit, data.flight_id);
     }
@@ -1168,6 +1171,13 @@ let AdminController = class AdminController {
     }
 };
 exports.AdminController = AdminController;
+__decorate([
+    (0, common_1.Get)('/get-document'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "getDocument", null);
 __decorate([
     (0, common_1.Get)('/get-flights'),
     __param(0, (0, common_1.Query)()),
@@ -1399,6 +1409,59 @@ let AdminService = class AdminService {
             this.createAddress(val);
         });
     }
+    async getDocument(flightId) {
+        try {
+            if (!flightId)
+                throw new common_1.BadGatewayException();
+            return await this.entityManager.transaction(async (manager) => {
+                const parcels = await manager.find(parcel_entity_1.Parcel, {
+                    where: { flight: { flight_id: flightId } },
+                    relations: ['flight', 'owner', 'owner.userDetails', 'declaration'],
+                });
+                if (!parcels || parcels.length === 0) {
+                    throw new common_1.NotFoundException(`No parcels found for flight ID ${flightId}`);
+                }
+                const mainData = parcels.map((parcel) => {
+                    if (!parcel.owner.userDetails) {
+                        throw new common_1.BadRequestException(`User details missing for parcel ID ${parcel.id}`);
+                    }
+                    return {
+                        tracking_id: parcel.id,
+                        personal_number: parcel.owner.userDetails.personal_number,
+                        first_name: parcel.owner.userDetails.first_name,
+                        last_name: parcel.owner.userDetails.last_name,
+                        phone_number: parcel.owner.userDetails.phone_number,
+                        address: `${parcel.owner.userDetails.city}, ${parcel.owner.userDetails.address}`,
+                        country_code: parcel.flight.flight_from === 'China' ? 156 : 792,
+                        weight: parcel?.weight,
+                        gz_type: 0,
+                        dab_type: 0,
+                        registration_date: new Date(),
+                        arrived_date: parcel.flight.arrived_at,
+                        document_number: '',
+                        tranporting_cost_1: parcel.price,
+                        tranporting_cost_1_currency: 'GEL',
+                        tranporting_cost_2: 0,
+                        tranporting_cost_2_currency: 'USD',
+                        tranporting_cost_off: 0,
+                        tranporting_cost_off_currency: 'USD',
+                        sender_website: parcel.declaration?.website,
+                        comment: parcel.declaration?.comment,
+                        race_id: parcel.flight.flight_id,
+                        resident: 1,
+                    };
+                });
+                return mainData;
+            });
+        }
+        catch (error) {
+            if (error instanceof common_1.NotFoundException || error instanceof common_1.BadRequestException) {
+                throw error;
+            }
+            console.error('Error fetching document data:', error);
+            throw new common_1.InternalServerErrorException('An unexpected error occurred while fetching the document data.');
+        }
+    }
     async getFlightsPaginated(page = 1, limit = 10, flightId) {
         try {
             if (flightId) {
@@ -1586,7 +1649,6 @@ let AdminService = class AdminService {
             console.log('Total count:', totalCount);
             query.skip((page - 1) * limit).take(limit);
             const users = await query.getMany();
-            console.log('Users fetched:', users);
             const totalPages = Math.ceil(totalCount / limit);
             const parsedUser = users.map((user) => {
                 const { transactions, ...rest } = user;

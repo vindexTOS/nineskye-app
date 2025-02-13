@@ -16,6 +16,14 @@ export class AdminController {
   ) { }
 
 
+
+  @Get('/get-document')
+  getDocument(@Query() data:  { flight_id : string}){
+    
+    return this.adminService.getDocument(data.flight_id)
+  }
+
+
   @Get('/get-flights')
   getFlights(@Query() data:  { page: number , limit : number, flight_id : string}){
     return this.adminService.getFlightsPaginated(data.page, data.limit, data.flight_id)
