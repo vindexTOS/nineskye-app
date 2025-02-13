@@ -367,7 +367,7 @@ export class AdminService implements OnModuleInit {
           }
         }
         async updateUser(id: string, data: UpdateUserDto) {
-            const { email, password, first_name, last_name, phone_number, city, address, office, personal_number } = data;
+            const { email,  first_name, last_name, phone_number, city, address, office, personal_number } = data;
             const user = await this.userRepository.findOne({
                 where: { id },
                 relations: ['userDetails'], // Ensures userDetails are loaded
@@ -377,7 +377,7 @@ export class AdminService implements OnModuleInit {
                   throw new Error(`User with ID ${id} not found.`);
                 }
                 user.email = email ?? user.email;
-                user.password = password ?? user.password;
+            
                 user.userDetails.first_name = first_name ?? user.userDetails.first_name;
                 user.userDetails.last_name = last_name ?? user.userDetails.last_name;
                 user.userDetails.phone_number = phone_number ?? user.userDetails.phone_number;
