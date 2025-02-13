@@ -85,7 +85,7 @@ export default function Arrived() {
     { title: 'ფასი', dataIndex: 'price', key: 'price' },
     { title: 'წონა', dataIndex: 'weight', key: 'weight' },
     { title: 'გადახდის სტატუსი', dataIndex: 'payment_status', key: 'payment_status' },
-    { title: 'გადაზიდვის სტატუსი', dataIndex: 'shipping_status', key: 'shipping_status' },
+    // { title: 'გადაზიდვის სტატუსი', dataIndex: 'shipping_status', key: 'shipping_status' },
   ];
 
   // For the modal, combine all unpaid parcels from all flights into one array.
