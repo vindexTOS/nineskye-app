@@ -50,7 +50,7 @@ const Footer = () => {
                 </li>
               </ul>
               <div className="flex gap-4 mt-4">
-                <a
+                {/* <a
                   href="https://t.me/your-telegram-handle"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -58,9 +58,9 @@ const Footer = () => {
                   className="transform hover:scale-110 transition duration-300"
                 >
                   <FaTelegram className="text-3xl text-blue-300 hover:text-blue-500" />
-                </a>
+                </a> */}
                 <a
-                  href="https://facebook.com/your-facebook-page"
+                  href="https://www.facebook.com/ATERG/?locale=mt_MT"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"

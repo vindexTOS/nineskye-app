@@ -15,7 +15,9 @@ import { CreateFlightType } from '../../types/flight.type';
 import { CreateFlight, GetFlights, UpdateFlight } from '../../API/Admin/ParcelAndFlights';
 import FlightDetailsModal from '../../components/modals/FlightDetailsModal';
 import { Gvamunateben, ShippingStatus, shippingStatusTranslation } from '../../types/shipping_status';
-
+import { DownloadExel } from '../../API/Admin/ExelDownload';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 const { Text } = Typography;
 
 export default function SimpleParcelPage() {
@@ -124,6 +126,76 @@ export default function SimpleParcelPage() {
     await updateFlightMutation.mutateAsync({ body, id: values.flight_id });
   };
 
+// ექსელი download exel ///////////////////
+
+
+
+const exportToExcel = (data: any[]) => {
+  // Mapping of original keys to Georgian column titles
+  const columnMapping: { [key: string]: string } = {
+    tracking_id: "ტრეკინგის ID",
+    personal_number: "პირადი ნომერი",
+    first_name: "სახელი",
+    last_name: "გვარი",
+    phone_number: "ტელეფონის ნომერი",
+    address: "მისამართი",
+    country_code: "ქვეყნის კოდი",
+    weight: "წონა",
+    gz_type: "გზის ტიპი",
+    dab_type: "დაბ-ის ტიპი",
+    registration_date: "რეგისტრაციის თარიღი",
+    arrived_date: "მოსვლის თარიღი",
+    document_number: "დოკუმენტის ნომერი",
+    tranporting_cost_1: "ტრანსპორტირების ხარჯი 1",
+    tranporting_cost_1_currency: "ტრანსპორტირების ხარჯი 1 ვალუტა",
+    tranporting_cost_2: "ტრანსპორტირების ხარჯი 2",
+    tranporting_cost_2_currency: "ტრანსპორტირების ხარჯი 2 ვალუტა",
+    tranporting_cost_off: "ტრანსპორტირების დანარჩენი ხარჯი",
+    tranporting_cost_off_currency: "ტრანსპორტირების დანარჩენი ხარჯის ვალუტა",
+    race_id: "რესი",
+    resident: "რეზიდენტობა"
+  };
+
+  // Map the original data keys to Georgian titles
+  const mappedData = data.map((item) => {
+    const newItem: any = {};
+    Object.keys(item).forEach((key) => {
+      newItem[columnMapping[key] || key] = item[key];
+    });
+    return newItem;
+  });
+
+  // Create a worksheet from the mapped data
+  const worksheet = XLSX.utils.json_to_sheet(mappedData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+  // Generate Excel file buffer
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+  // Trigger file download using FileSaver
+  saveAs(blob, "export.xlsx");
+};
+
+  const downloadExelMutation =  useMutation({
+     mutationFn:(flight_id:string) => DownloadExel(flight_id),
+      onSuccess: (data) => {
+        message.success("ფაილის გადმოწერა დაიწყო");
+        exportToExcel(data.data);
+      },
+      onError: (err: any) => {
+        console.log(err)
+        message.success("ფაილის გადმოწერა ვერ მოხერხდა ცადეთ თავიდან");
+      }
+  })
+
+  const handleDownloadExelMutation = async (flight_id:any) => {
+    const id = flight_id.flight_id
+    await downloadExelMutation.mutateAsync(id);
+  }
+
+  
   // Table columns (added an edit button)
   const columns = [
     { title: 'ფრენის ID', dataIndex: 'flight_id', key: 'flight_id' },
@@ -138,7 +210,7 @@ export default function SimpleParcelPage() {
       title: 'ჩამოსვლის თარიღი',
       dataIndex: 'arrived_at',
       key: 'arrived_at',
-      render: (text: any) => text, // a string value
+      render: (text: any) => text ? text.slice(0, 10) : ""
     },
     {
       title: 'ამანათები',
@@ -155,6 +227,19 @@ export default function SimpleParcelPage() {
       render: (_: any, flightObj: any) => (
         <Button type="default" onClick={() => openEditModal(flightObj)}>
           რედაქტირება
+        </Button>
+      ),
+    },
+    {
+      title: 'გადმოიწერე Excel',
+      key: 'download',
+      render: (_: any, flightObj: any) => (
+        <Button
+          type="default"
+          style={{ backgroundColor: 'green', borderColor: 'green', color: 'white' }}
+          onClick={() => handleDownloadExelMutation(flightObj)}
+        >
+          გადმოწერა 
         </Button>
       ),
     },
